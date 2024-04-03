@@ -42,7 +42,17 @@ def generate_board():
 
     game_board = [
         [
-            tk.Button(game_screen, command=lambda x=col, y=row: on_click_matrix(x, y))
+            tk.Button(game_screen, 
+                      command=lambda x=col, y=row: on_click_matrix(x, y),
+                      background="lightBlue", 
+                      activebackground="lightBlue",
+                    #   border="blue",
+                      borderwidth=1,
+                      relief="solid",
+                      compound="center",
+                      cursor="crosshair"
+                    )
+
             for col in range(board_colums)
         ] 
         for row in range(board_rows)
