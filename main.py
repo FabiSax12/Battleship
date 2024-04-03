@@ -39,6 +39,9 @@ def generate_board(x: int, y: int):
 
     colocate_buttons_on_screen()
 
-generate_board(20, 10)
+def main():
+    # Initialization
+    generate_board(20, 10)
 
-game_screen.mainloop()
+    # Run game screen
+    game_screen.mainloop()
