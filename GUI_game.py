@@ -6,7 +6,7 @@ def create_game_screen(button_width, matrix_cols, matrix_rows, padding_x, paddin
     game_screen.title("Battleship")
 
     # Calculate width and height of the window
-    window_width = (button_width * matrix_cols) + (padding_x * 2)
+    window_width = (button_width * matrix_cols) + (padding_x * 2) + button_width
     window_height = (button_width * matrix_rows) + (padding_y * 2)
 
     # Get width and height of the screen
