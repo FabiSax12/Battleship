@@ -63,10 +63,24 @@ def generate_all_ship_images():
                     photo_image = ImageTk.PhotoImage(rotated_image)
                     # Almacenar la imagen convertida en la lista de imágenes
                     ships_Tkinter_images[ship][orientation].append(photo_image)
-    
+
+def print_ship_image(ship: str, orientation: str, board: list, x:int, y:int):
+    for i in range(len(ships[ship])):
+        moved_x = x
+        moved_y = y
+
+        if orientation == "top":      moved_y = y + i
+        elif orientation == "bottom": moved_y = y - i
+        elif orientation == "left":   moved_x = x + i
+        elif orientation == "right":  moved_x = x - i
+
+        button: tk.Button = board[moved_y][moved_x]
+        button.config(image=ships_Tkinter_images[ship][orientation][i])
+
 def on_click_matrix(x, y):
     if x >= board_colums // 2: x -= 15
     print((x, y))
+    print_ship_image("acorazado", "left", board_1, x, y)
     
 def colocate_buttons_on_screen(board: list, placement_x: int):
     btnX = placement_x
