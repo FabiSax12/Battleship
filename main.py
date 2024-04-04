@@ -1,6 +1,7 @@
 import tkinter as tk
 from PIL import ImageTk, Image
 from GUI_game import create_game_screen
+from enums import *
 
 # Global variables
 board_1 = []
@@ -11,30 +12,15 @@ board_colums = 30
 button_width = 30
 
 ships = {
-    "destructor": ["b1.png"],
-    "crucero": ["b21.png", "b22.png"],
-    "acorazado": ["b31.png", "b32.png", "b33.png"]
+    Ship.DESTRUCTOR: ["b1.png"],
+    Ship.CRUCERO: ["b21.png", "b22.png"],
+    Ship.ACORAZADO: ["b31.png", "b32.png", "b33.png"]
 }
 
 ships_Tkinter_images = {
-    "destructor": {
-        "top": [],
-        "right": [],
-        "bottom": [],
-        "left": []
-    },
-    "crucero": {
-        "top": [],
-        "right": [],
-        "bottom": [],
-        "left": []
-    },
-    "acorazado": {
-        "top": [],
-        "right": [],
-        "bottom": [],
-        "left": []
-    },
+    Ship.DESTRUCTOR: {orientation: [] for orientation in Orientation},
+    Ship.CRUCERO: {orientation: [] for orientation in Orientation},
+    Ship.ACORAZADO: {orientation: [] for orientation in Orientation},
 }
 
 # Style
@@ -44,59 +30,36 @@ padding_y = button_width * 2
 # GUI
 game_screen = create_game_screen(button_width, board_colums, board_rows, padding_x, padding_y)
 
-def generate_all_ship_images():
-    for ship in ships.keys():
-        for image_path in ships[ship]:
-            for orientation in ships_Tkinter_images[ship].keys():
-                # Cargar la imagen utilizando PIL
-                image = Image.open(f"images/{image_path}")
-                image = image.resize((button_width, button_width))
-                
-                rotated_image = image
-                if orientation == "left": rotated_image = image.rotate(180)
-                if orientation == "right": rotated_image = image.rotate(0)
-                if orientation == "top": rotated_image = image.rotate(90)
-                if orientation == "bottom": rotated_image = image.rotate(270)
-                
-                # Convertir la imagen al formato PhotoImage si aún no ha sido convertida
-                if isinstance(rotated_image, Image.Image):
-                    photo_image = ImageTk.PhotoImage(rotated_image)
-                    # Almacenar la imagen convertida en la lista de imágenes
-                    ships_Tkinter_images[ship][orientation].append(photo_image)
-
-def print_ship_image(ship: str, orientation: str, board: list, x:int, y:int):
+def print_ship_image(ship: Ship, orientation: Orientation, board: list, x: int, y: int):
     for i in range(len(ships[ship])):
         moved_x = x
         moved_y = y
 
-        if orientation == "top":      moved_y = y + i
-        elif orientation == "bottom": moved_y = y - i
-        elif orientation == "left":   moved_x = x + i
-        elif orientation == "right":  moved_x = x - i
+        if orientation == Orientation.TOP:      moved_y += i
+        elif orientation == Orientation.BOTTOM: moved_y -= i
+        elif orientation == Orientation.LEFT:   moved_x += i
+        elif orientation == Orientation.RIGHT:  moved_x -= i
 
-        button: tk.Button = board[moved_y][moved_x]
-        button.config(image=ships_Tkinter_images[ship][orientation][i])
+        if 0 <= moved_x < len(board[0]) and 0 <= moved_y < len(board):
+            button: tk.Button = board[moved_y][moved_x]
+            button.config(image=ships_Tkinter_images[ship][orientation][i])
 
-def on_click_matrix(x, y):
-    if x >= board_colums // 2: x -= 15
-    print((x, y))
-    print_ship_image("acorazado", "left", board_1, x, y)
+def on_click_matrix(x: int, y: int):
+    if x >= board_colums // 2:
+        x -= board_colums // 2
+
+    print_ship_image(Ship.ACORAZADO, Orientation.TOP, board_1, x, y)
     
 def colocate_buttons_on_screen(board: list, placement_x: int):
-    btnX = placement_x
-    btnY = padding_y
-    current_x = 0
+    x_offset = button_width if len(board[0]) > board_colums // 2 else 0
+    y_offset = button_width
 
-    for row in board:
-        for btn in row:
-            if current_x == board_colums // 2: btnX += button_width
-            btn.place(x=btnX, y=btnY, width=button_width, height=button_width)
-            btnX += button_width
-            current_x += 1
-
-        btnX = placement_x
-        btnY += button_width
-        current_x = 0
+    for row in range(len(board)):
+        for col in range(len(board[row])):
+            btn = board[row][col]
+            x_pos = placement_x + col * button_width + (col // (board_colums // 2)) * x_offset
+            y_pos = padding_y + row * button_width
+            btn.place(x=x_pos, y=y_pos, width=button_width, height=button_width)
 
 def generate_board():
     global board_1
@@ -124,6 +87,22 @@ def generate_board():
 
     colocate_buttons_on_screen(board_1, padding_x)
     colocate_buttons_on_screen(board_2, padding_x + button_width * (board_colums / 2 + 1))
+
+def generate_all_ship_images():
+    for ship in ships.keys():
+        for orientation in ships_Tkinter_images[ship].keys():
+            for image_path in ships[ship]:
+                image = Image.open(f"images/{image_path}")
+                image = image.resize((button_width, button_width))
+                
+                if orientation == Orientation.LEFT:     rotated_image = image.rotate(180)
+                elif orientation == Orientation.RIGHT:  rotated_image = image.rotate(0)
+                elif orientation == Orientation.TOP:    rotated_image = image.rotate(90)
+                elif orientation == Orientation.BOTTOM: rotated_image = image.rotate(270)
+                
+                if isinstance(rotated_image, Image.Image):
+                    photo_image = ImageTk.PhotoImage(rotated_image)
+                    ships_Tkinter_images[ship][orientation].append(photo_image)
 
 def main():
     # Initialization
