@@ -3,14 +3,11 @@ from PIL import ImageTk, Image
 
 from game_data import *
 from enums import *
-from GUI_game import create_game_screen
+from GUI_game import create_game_screen, create_setup_screen
 
 # Style
 padding_x = button_width * 4
 padding_y = button_width * 2
-
-# GUI
-game_screen = create_game_screen(button_width, board_colums, board_rows, padding_x, padding_y)
 
 def print_ship_image(ship: Ship, orientation: Orientation, board: list, x: int, y: int):
     """
@@ -67,7 +64,7 @@ def colocate_buttons_on_screen(board: list, placement_x: int):
             y_pos = padding_y + row * button_width
             btn.place(x=x_pos, y=y_pos, width=button_width, height=button_width)
 
-def generate_board():
+def generate_board(window: tk.Tk):
     """
     Generates the game boards, initializes buttons, and places them on the game screen.
 
@@ -78,7 +75,7 @@ def generate_board():
 
     game_board = [
         [
-            tk.Button(game_screen, 
+            tk.Button(window, 
                       command=lambda x=col, y=row: on_click_matrix(x, y),
                       background="lightBlue", 
                       activebackground="lightBlue",
@@ -110,7 +107,7 @@ def generate_all_ship_images():
     for ship in ships.keys():
         for orientation in ships_Tkinter_images[ship].keys():
             for image_path in ships[ship]:
-                image = Image.open(f"images/{image_path}")
+                image = Image.open(f"src/images/{image_path}")
                 image = image.resize((button_width, button_width))
                 
                 if orientation == Orientation.LEFT:     rotated_image = image.rotate(180)
@@ -128,11 +125,13 @@ def main():
     Then, it starts the game loop by running the game screen.
     """
 
-    # Initialization
-    generate_all_ship_images()
-    generate_board()
+    for player in players:
+        setup_screen = create_setup_screen(player)
+        setup_screen.mainloop()
 
-    # Run game screen
-    game_screen.mainloop()
+    game_screen = create_game_screen(padding_x, padding_y)
+    generate_all_ship_images()
+    generate_board(game_screen)
+    game_screen.mainloop()   
 
 main()
