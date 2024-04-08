@@ -1,5 +1,6 @@
 import tkinter as tk
 from game_data import players
+import tk_widgets.custom_tk_widgets as custom
 
 window_menu = tk.Tk()
 
@@ -46,13 +47,7 @@ def player_registration():
     player_name2 = tk.Entry(window_player_form, font=("Times New Roman", 15))
     player_name2.place(x=10, y=220)
 
-    accept_button = tk.Button(window_player_form, 
-                              text="Continuar", 
-                              font=("Times New Roman", 17), 
-                              bg="black", 
-                              fg="white",
-                              command=lambda: register_players_and_close_window(window_player_form, player_name1, player_name2)
-                            )
+    accept_button = custom.Button(window_player_form, "Continuar", lambda: register_players_and_close_window(window_player_form, player_name1, player_name2))
     accept_button.place(x=200, y=260)
 
     window_player_form.mainloop()
@@ -70,7 +65,10 @@ welcome = tk.Label(window_menu, text = "¡Bienvenidos a Battleship!", font = ("T
 # registration = tk.Label(window_menu, text = "¿Desean registrarse?", font = ("Times New Roman", 17)).place(x = 160, y = 185)
 
 #create button.
-load_game_btn = tk.Button(window_menu, text = "Cargar Partida", font = ("Times New Roman", 15), bg = "black", fg = "white").place(x = 123, y = 260, height = 50, width = 150) 
-create_game_btn = tk.Button(window_menu, text = "Crear partida", font = ("Times New Roman", 15), bg = "black", fg = "white", command = player_registration).place(x = 285, y = 260, height = 50, width = 150) 
+load_game_btn = custom.Button(window_menu, "Cargar Partida")
+load_game_btn.place(x = 123, y = 260, height = 50, width = 150) 
+
+create_game_btn = custom.Button(window_menu, "Crear partida", player_registration)
+create_game_btn.place(x = 285, y = 260, height = 50, width = 150) 
 
 window_menu.mainloop() #This keeps the window open inside cmd.
