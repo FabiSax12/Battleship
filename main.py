@@ -1,27 +1,9 @@
 import tkinter as tk
 from PIL import ImageTk, Image
-from GUI_game import create_game_screen
+
+from game_data import *
 from enums import *
-
-# Global variables
-board_1 = []
-board_2 = []
-
-board_rows = 10
-board_colums = 30 
-button_width = 30
-
-ships = {
-    Ship.DESTRUCTOR: ["b1.png"],
-    Ship.CRUCERO: ["b21.png", "b22.png"],
-    Ship.ACORAZADO: ["b31.png", "b32.png", "b33.png"]
-}
-
-ships_Tkinter_images = {
-    Ship.DESTRUCTOR: {orientation: [] for orientation in Orientation},
-    Ship.CRUCERO: {orientation: [] for orientation in Orientation},
-    Ship.ACORAZADO: {orientation: [] for orientation in Orientation},
-}
+from GUI_game import create_game_screen
 
 # Style
 padding_x = button_width * 4

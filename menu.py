@@ -1,9 +1,7 @@
 import tkinter as tk
-
-players = []
+from game_data import players
 
 window_menu = tk.Tk()
-
 
 def register_players(name: str):
     new_player = {
