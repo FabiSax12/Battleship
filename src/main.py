@@ -1,4 +1,5 @@
 import tkinter as tk
+from tkinter.font import Font
 from PIL import ImageTk, Image
 
 from game_data import *
@@ -15,6 +16,9 @@ game_screen = create_game_screen(padding_x, padding_y)
 # States
 selected_ship = tk.StringVar(value=Ship.DESTRUCTOR.name)
 selected_orientation = tk.StringVar(value=Orientation.TOP.name)
+ships_complete_img = []
+
+player_one_radio_buttons = []
 
 def print_ship_image(ship: Ship, orientation: Orientation, board: list, x: int, y: int):
     """
@@ -49,10 +53,11 @@ def on_click(x: int, y: int):
         x (int): The x-coordinate of the clicked position on the game board.
         y (int): The y-coordinate of the clicked position on the game board.
     """
-    if x >= board_colums // 2:
-        x -= board_colums // 2
+    board_clicked = board_1 if x < board_colums // 2 else board_2
 
-    print_ship_image(Ship[selected_ship.get()], Orientation[selected_orientation.get()], board_1, x, y)
+    x = x - board_colums // 2 if x >= board_colums // 2 else x
+
+    print_ship_image(Ship[selected_ship.get()], Orientation[selected_orientation.get()], board_clicked, x, y)
     
 def colocate_buttons_on_screen(board: list, placement_x: int):
     """
@@ -98,8 +103,8 @@ def generate_board(window: tk.Tk):
         for row in range(board_rows)
     ]
 
-    board_1 = [game_board[row][0 : 15] for row in range(board_rows)]
-    board_2 = [game_board[row][15:   ] for row in range(board_rows)]
+    board_1 = [game_board[row][0 : board_colums // 2] for row in range(board_rows)]
+    board_2 = [game_board[row][board_colums // 2:   ] for row in range(board_rows)]
 
     colocate_buttons_on_screen(board_1, padding_x)
     colocate_buttons_on_screen(board_2, padding_x + button_width * (board_colums / 2 + 1))
@@ -127,7 +132,7 @@ def generate_all_ship_images():
                     photo_image = ImageTk.PhotoImage(rotated_image)
                     ships_Tkinter_images[ship][orientation].append(photo_image)
 
-def create_radio_buttons(window, options, selected_variable, value_function, x, y):
+def create_radio_buttons(window: tk.Tk, options: Enum, selected_variable: tk.StringVar, value_function, x: int, y: int):
     """
     Create radio buttons for the given options.
 
@@ -139,23 +144,57 @@ def create_radio_buttons(window, options, selected_variable, value_function, x, 
         x: The x-coordinate where the radio buttons will be placed.
         y: The y-coordinate where the first radio button will be placed.
     """
+    radio_label = tk.Label(window, text="Seleccione un barco", font=("Times New Roman", 12), height=300)
+    radio_label.place(x=x, y=y)
+
     for i, option in enumerate(options):
+        image = Image.open(f"src/images/{option.value}.png")
+        [image_width, image_height] = image.size
+        image = image.resize((image_width // 5, image_height // 5))
+        photo_image = ImageTk.PhotoImage(image)
+        ships_complete_img.append(photo_image)
+
         radio_button = tk.Radiobutton(
-            window,
+            radio_label,
+            image=ships_complete_img[-1],
             text=option.value.capitalize(),
             variable=selected_variable,
             value=value_function(option),
+            font=("Times New Roman", 12),
+            foreground="black",
         )
-        radio_button.place(x=x, y=y + 30 * i)
+        radio_button.place(x=radio_label.winfo_x() // 2 - radio_button.winfo_width(), y=radio_label.winfo_y() + 30 * i + 30)
+
+    return radio_label
+
+def move_widget_list(widget: tk.Label, new_x, new_y):
+    new_widget = tk.Label(game_screen, text="New Widget")
+    new_widget.place(x=padding_x + (button_width * board_colums // 2 + 1), y=600)
+    widget.destroy()
+    widget = new_widget
+    # , 
+    # widget.place_forget()
+    # widget.place_configure(x=padding_x + (button_width * board_colums // 2 + 1), y=600)
+    widget.place_forget()
+    widget.place(x=new_x, y=new_y)
+    # widget.place(x=padding_x + (button_width * board_colums // 2 + 1), y=600)
 
 def setup_game_screen():
     """
     Sets up the game screen with necessary labels and widgets.
     """
-    game_state_label = tk.Label(game_screen, text="Posicione sus barcos", font=("Times New Roman", 17))
-    game_state_label.pack(anchor="center", pady=15)
-    create_radio_buttons(game_screen, ships, selected_ship, lambda ship: ship.name, padding_x, 400)
-    create_radio_buttons(game_screen, Orientation, selected_orientation, lambda orientation: orientation.name, padding_x + 200, 400)
+    game_state_label = tk.Label(game_screen, text="Posicione sus barcos", font=Font(family="Times New Roman", size=17))
+    game_state_label.place(x=padding_x, y=padding_y - 50)
+    ships_selector_div = create_radio_buttons(game_screen, ships, selected_ship, lambda ship: ship.name, padding_x, 500)
+    orientation_selector_div = create_radio_buttons(game_screen, Orientation, selected_orientation, lambda orientation: orientation.name, padding_x + 200, 500)
+
+    ships_placed_button = tk.Button(
+        game_screen,
+        text="Guardar Posiciones",
+        bg="blue",
+        fg="white",
+        command=lambda: move_widget_list(ships_selector_div, padding_x + (button_width * board_colums // 2 + 1), 500)
+    ).place(x=padding_x + 500, y=500)
 
 def run_game_loop():
     """
