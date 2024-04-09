@@ -3,11 +3,18 @@ from PIL import ImageTk, Image
 
 from game_data import *
 from enums import *
-from GUI_game import create_game_screen, create_setup_screen
+from GUI_game import create_game_screen
 
 # Style
 padding_x = button_width * 4
 padding_y = button_width * 2
+
+# Tkinter Root
+game_screen = create_game_screen(padding_x, padding_y)
+
+# States
+selected_ship = tk.StringVar(value=Ship.DESTRUCTOR.name)
+selected_orientation = tk.StringVar(value=Orientation.TOP.name)
 
 def print_ship_image(ship: Ship, orientation: Orientation, board: list, x: int, y: int):
     """
@@ -20,6 +27,7 @@ def print_ship_image(ship: Ship, orientation: Orientation, board: list, x: int, 
         x (int): The x-coordinate of the starting position for the ship.
         y (int): The y-coordinate of the starting position for the ship.
     """
+
     for i in range(len(ships[ship])):
         moved_x = x
         moved_y = y
@@ -33,7 +41,7 @@ def print_ship_image(ship: Ship, orientation: Orientation, board: list, x: int, 
             button: tk.Button = board[moved_y][moved_x]
             button.config(image=ships_Tkinter_images[ship][orientation][i])
 
-def on_click_matrix(x: int, y: int):
+def on_click(x: int, y: int):
     """
     Handles the click event on the game board.
 
@@ -44,7 +52,7 @@ def on_click_matrix(x: int, y: int):
     if x >= board_colums // 2:
         x -= board_colums // 2
 
-    print_ship_image(Ship.ACORAZADO, Orientation.TOP, board_1, x, y)
+    print_ship_image(Ship[selected_ship.get()], Orientation[selected_orientation.get()], board_1, x, y)
     
 def colocate_buttons_on_screen(board: list, placement_x: int):
     """
@@ -76,7 +84,7 @@ def generate_board(window: tk.Tk):
     game_board = [
         [
             tk.Button(window, 
-                      command=lambda x=col, y=row: on_click_matrix(x, y),
+                      command=lambda x=col, y=row: on_click(x, y),
                       background="lightBlue", 
                       activebackground="lightBlue",
                       borderwidth=1,
@@ -119,19 +127,63 @@ def generate_all_ship_images():
                     photo_image = ImageTk.PhotoImage(rotated_image)
                     ships_Tkinter_images[ship][orientation].append(photo_image)
 
+def create_radio_buttons(window, options, selected_variable, value_function, x, y):
+    """
+    Create radio buttons for the given options.
+
+    Args:
+        window: The Tkinter window where the radio buttons will be placed.
+        options: A list of options for the radio buttons.
+        selected_variable: The Tkinter variable to store the selected option.
+        value_function: A function that takes an option and returns its value.
+        x: The x-coordinate where the radio buttons will be placed.
+        y: The y-coordinate where the first radio button will be placed.
+    """
+    for i, option in enumerate(options):
+        radio_button = tk.Radiobutton(
+            window,
+            text=option.value.capitalize(),
+            variable=selected_variable,
+            value=value_function(option),
+        )
+        radio_button.place(x=x, y=y + 30 * i)
+
+def setup_game_screen():
+    """
+    Sets up the game screen with necessary labels and widgets.
+    """
+    game_state_label = tk.Label(game_screen, text="Posicione sus barcos", font=("Times New Roman", 17))
+    game_state_label.pack(anchor="center", pady=15)
+    create_radio_buttons(game_screen, ships, selected_ship, lambda ship: ship.name, padding_x, 400)
+    create_radio_buttons(game_screen, Orientation, selected_orientation, lambda orientation: orientation.name, padding_x + 200, 400)
+
+def run_game_loop():
+    """
+    Starts the game loop.
+    """
+    # Game loop logic
+    pass
+
+def initialize_game():
+    """
+    Initializes the game by generating ship images and setting up the game screen.
+    """
+    generate_all_ship_images()
+    setup_game_screen()
+
 def main():
     """
     Initializes the game by generating ship images and creating the game board.
     Then, it starts the game loop by running the game screen.
     """
 
-    for player in players:
-        setup_screen = create_setup_screen(player)
-        setup_screen.mainloop()
+    initialize_game()
 
-    game_screen = create_game_screen(padding_x, padding_y)
-    generate_all_ship_images()
+    setup_game_screen()
+
     generate_board(game_screen)
-    game_screen.mainloop()   
+    game_screen.mainloop()
+
+    run_game_loop()
 
 main()

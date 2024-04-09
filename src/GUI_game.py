@@ -19,11 +19,13 @@ def create_game_screen(padding_x, padding_y) -> tk.Tk:
 
     # Calculate width and height of the window
     window_width = int((button_width * board_colums) + (padding_x * 2) + button_width)
-    window_height = int((button_width * board_rows) + (padding_y * 2))
+    # window_height = int((button_width * board_rows) + (padding_y * 2))
+    window_height = int(game_screen.winfo_screenheight())
 
     [pos_x, pos_y] = center_window(game_screen, window_width, window_height)
 
     game_screen.geometry(f"{window_width}x{window_height}+{pos_x}+{pos_y}")
+    # game_screen.resizable(0, 0)
 
     return game_screen
 
