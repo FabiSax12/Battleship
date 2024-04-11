@@ -1,5 +1,5 @@
 import tkinter as tk
-from game_data import players, board_colums, board_rows
+from game_data import game_data
 from tkinter import messagebox
 import tk_widgets.custom_tk_widgets as custom
 
@@ -16,7 +16,7 @@ def register_players(name: str):
         }
     }
 
-    players.append(new_player)
+    game_data["players"].append(new_player)
 
 def set_game_config(window, player_name1: tk.Entry, player_name2: tk.Entry, rows_box: tk.Entry, columns_box: tk.Entry):
     global board_colums
@@ -40,8 +40,7 @@ def set_game_config(window, player_name1: tk.Entry, player_name2: tk.Entry, rows
             window.mainloop()
 
         else:
-            global board_rows 
-            board_rows = rows
+            game_data["board_rows"] += rows
             
     except ValueError:
         tk.messagebox.showinfo("Error", "El número de filas debe ser un número entero positivo.")
@@ -56,8 +55,7 @@ def set_game_config(window, player_name1: tk.Entry, player_name2: tk.Entry, rows
             tk.messagebox.showinfo("Error", "El número de columnas debe ser PAR.")
             window.mainloop()
         else:
-            global board_colums 
-            board_colums = columns
+            game_data["board_columns"] += columns
     except ValueError:
          tk.messagebox.showinfo("Error", "El número de columnas debe ser un número entero positivo.")
          window.mainloop() 
@@ -108,7 +106,7 @@ def player_registration():
     columns_entry.place(x=485, y=260, width= 50)
     
 
-    accept_button = custom.Button(window_player_form, "Continuar", lambda: set_game_config(window_player_form, player_name1, player_name2, rows_box, columns_entry))
+    accept_button = custom.Button(window_player_form, "Continuar", lambda: set_game_config(window_player_form, player_name1, player_name2, register_players, rows_box, columns_entry))
     accept_button.place(x=235, y=355)
 
     window_player_form.mainloop()
@@ -134,4 +132,5 @@ load_game_btn.place(x = 123, y = 260, height = 50, width = 150)
 create_game_btn = custom.Button(window_menu, "Crear partida", player_registration)
 create_game_btn.place(x = 285, y = 260, height = 50, width = 150) 
 
-window_menu.mainloop() #This keeps the window open inside cmd.
+if __name__ == "__main__":
+    window_menu.mainloop() #This keeps the window open inside cmd.

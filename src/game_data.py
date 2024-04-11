@@ -2,14 +2,17 @@ from enums import *
 
 # Global variables
 
-players = []
+game_data = {
+    "players": [],
+    "board_1": [],
+    "board_2": [],
+    "button_width": 30,
+    "board_rows": 10,
+    "board_columns": 20,
+}
 
 board_1 = []
 board_2 = []
-
-board_rows = 10
-board_colums = 30 
-button_width = 30
 
 ships = {
     Ship.DESTRUCTOR: ["b1.png"],
