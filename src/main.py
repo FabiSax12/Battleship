@@ -100,8 +100,9 @@ def start_new_game(window: tk.Tk):
     generate_board(game_screen, padding_x)
     change_board_buttons_command(lambda board, x, y: posisionate_ship(board, x, y, selected_ship, selected_orientation))
 
-    print(game_data["board_1"])
     game_screen.mainloop()
+
+    
 
 def start_old_game(window: tk.Tk):
     window.destroy()
@@ -116,9 +117,11 @@ def start_old_game(window: tk.Tk):
 
     game_screen = create_game_screen()
 
+    generate_board(game_screen, padding_x)
     place_buttons_on_board(board_1, padding_x)
     place_buttons_on_board(board_2, padding_x + (game_data["button_width"] * (board_columns // 2 + 1)))
-    # change_board_buttons_command(lambda x, y: print(x, y))
+    
+    change_board_buttons_command(lambda x, y: print(x, y))
 
     game_screen.mainloop()
 

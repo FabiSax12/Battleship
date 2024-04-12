@@ -93,10 +93,10 @@ def posisionate_ship(board_clicked: list[tk.Button], x: int, y: int, selected_sh
         x (int): The x-coordinate of the clicked position on the game board.
         y (int): The y-coordinate of the clicked position on the game board.
     """
-    # board_columns = game_data["board_columns"]
+    board_ships = game_data["board_1_ships" if board_clicked == game_data["board_1"] else "board_2_ships"]
 
-    # board_clicked = game_data["board_1"] if x < board_columns // 2 else game_data["board_2"]
-
-    # x = x - board_columns // 2 if x >= board_columns // 2 else x
     if validate_ship_position(x, y, Ship[selected_ship.get()], Orientation[selected_orientation.get()], board_clicked):
+
         print_ship_image(Ship[selected_ship.get()], Orientation[selected_orientation.get()], board_clicked, x, y)
+        
+        board_ships.append((x, y, selected_ship.get(), selected_orientation.get()))

@@ -1,18 +1,19 @@
+import pickle
 from enums import *
+import json
 
 # Global variables
 
 game_data = {
     "players": [],
-    "board_1": [],
-    "board_2": [],
     "button_width": 30,
     "board_rows": 10,
     "board_columns": 20,
+    "board_1": [],
+    "board_2": [],
+    "board_1_ships": [[x, y, ship, orientation]],
+    "board_2_ships": []
 }
-
-board_1 = []
-board_2 = []
 
 ships = {
     Ship.DESTRUCTOR: ["b1.png"],
@@ -25,3 +26,9 @@ ships_Tkinter_images = {
     Ship.CRUCERO: {orientation: [] for orientation in Orientation},
     Ship.ACORAZADO: {orientation: [] for orientation in Orientation},
 }
+
+def save_game_data():
+    pass
+
+def load_game_data():
+    pass
