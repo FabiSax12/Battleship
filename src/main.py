@@ -1,20 +1,20 @@
+import stat
 import tkinter      as tk
 from tkinter.font   import Font
+from turtle import setup
 from PIL            import ImageTk, Image
 from enum           import Enum
 
 from game_data      import ships, ships_Tkinter_images, game_data
 from enums          import Orientation, Ship
-from GUI_game       import create_game_screen, create_new_game_screen, create_welcome_screen
+from GUI_game       import create_game_screen, create_new_game_screen, create_welcome_screen, screen_height, screen_width
 
-print("Cargando...")
 board_1 = game_data["board_1"]
 board_2 = game_data["board_2"]
-button_width = game_data["button_width"]
 
 # Style
-padding_x = button_width * 4
-padding_y = button_width * 2
+padding_x = None
+padding_y = 50
 
 def print_ship_image(ship: Ship, orientation: Orientation, board: list, x: int, y: int):
     """
@@ -41,7 +41,39 @@ def print_ship_image(ship: Ship, orientation: Orientation, board: list, x: int, 
             button: tk.Button = board[moved_y][moved_x]
             button.config(image=ships_Tkinter_images[ship][orientation][i])
 
-def on_click(x: int, y: int, selected_ship: tk.StringVar, selected_orientation: tk.StringVar):
+def validate_ship_position(x: int, y: int, ship: Ship, orientation: Orientation, board: list):
+    """
+    Validates the position of a ship on the game board.
+
+    Args:
+        x (int): The x-coordinate of the starting position for the ship.
+        y (int): The y-coordinate of the starting position for the ship.
+        ship (Ship): The type of ship to validate.
+        orientation (Orientation): The orientation of the ship.
+        board (list): The game board represented as a 2D list.
+
+    Returns:
+        bool: True if the ship can be placed on the board, False otherwise.
+    """
+    for i in range(len(ships[ship])):
+        moved_x = x
+        moved_y = y
+
+        if orientation == Orientation.TOP:      moved_y += i
+        elif orientation == Orientation.BOTTOM: moved_y -= i
+        elif orientation == Orientation.LEFT:   moved_x += i
+        elif orientation == Orientation.RIGHT:  moved_x -= i
+
+        if 0 <= moved_x < len(board[0]) and 0 <= moved_y < len(board):
+            button: tk.Button = board[moved_y][moved_x]
+            if button["image"] != "":
+                return False
+        else:
+            return False
+
+    return True
+
+def posisionate_ship(x: int, y: int, selected_ship: tk.StringVar, selected_orientation: tk.StringVar):
     """
     Handles the click event on the game board.
 
@@ -55,9 +87,10 @@ def on_click(x: int, y: int, selected_ship: tk.StringVar, selected_orientation: 
 
     x = x - board_columns // 2 if x >= board_columns // 2 else x
 
-    print_ship_image(Ship[selected_ship.get()], Orientation[selected_orientation.get()], board_clicked, x, y)
+    if validate_ship_position(x, y, Ship[selected_ship.get()], Orientation[selected_orientation.get()], board_clicked):
+        print_ship_image(Ship[selected_ship.get()], Orientation[selected_orientation.get()], board_clicked, x, y)
     
-def colocate_buttons_on_screen(board: list, placement_x: int):
+def colocate_buttons_on_screen(board: list, placement_x: int = None):
     """
     Positions the buttons on the game screen based on the provided board and placement coordinates.
 
@@ -66,9 +99,10 @@ def colocate_buttons_on_screen(board: list, placement_x: int):
         placement_x (int): The x-coordinate where the buttons will be placed on the screen.
     """
     board_columns = game_data["board_columns"]
+    button_width = game_data["button_width"]
+    placement_x = padding_x if placement_x is None else placement_x
 
     x_offset = button_width if len(board[0]) > board_columns // 2 else 0
-    y_offset = button_width
 
     for row in range(len(board)):
         for col in range(len(board[row])):
@@ -92,7 +126,8 @@ def generate_board(window: tk.Tk, selected_ship: tk.StringVar, selected_orientat
     game_board = [
         [
             tk.Button(window, 
-                      command=lambda x=col, y=row: on_click(x, y, selected_ship, selected_orientation),
+                      command=lambda x=col, y=row: posisionate_ship(x, y, selected_ship, selected_orientation),
+                      state="disabled" if col < board_columns // 2 else "normal",
                       background="lightBlue", 
                       activebackground="lightBlue",
                       borderwidth=1,
@@ -106,13 +141,12 @@ def generate_board(window: tk.Tk, selected_ship: tk.StringVar, selected_orientat
         for row in range(board_rows)
     ]
 
-    print("creando tablero", board_columns, board_rows)
-
     board_1 = [game_board[row][0 : board_columns // 2] for row in range(board_rows)]
     board_2 = [game_board[row][board_columns // 2:   ] for row in range(board_rows)]
+    toggle_board()
 
-    colocate_buttons_on_screen(board_1, padding_x)
-    colocate_buttons_on_screen(board_2, padding_x + button_width * (board_columns / 2 + 1))
+    colocate_buttons_on_screen(board_1)
+    colocate_buttons_on_screen(board_2, padding_x + (game_data["button_width"] * (board_columns // 2 + 1)))
 
 def generate_all_ship_images():
     """
@@ -122,6 +156,8 @@ def generate_all_ship_images():
     and rotates them based on the orientation. It then converts the rotated images into PhotoImage objects and stores them in the
     ships_Tkinter_images dictionary.
     """
+    button_width = game_data["button_width"]
+
     for ship in ships.keys():
         for orientation in ships_Tkinter_images[ship].keys():
             for image_path in ships[ship]:
@@ -136,6 +172,22 @@ def generate_all_ship_images():
                 if isinstance(rotated_image, Image.Image):
                     photo_image = ImageTk.PhotoImage(rotated_image)
                     ships_Tkinter_images[ship][orientation].append(photo_image)
+
+def enable_board(board: list):
+    for row in board:
+        for btn in row:
+            btn.config(state="normal")
+
+def toggle_board():
+    for row in board_1:
+        for btn in row:
+            state = btn["state"]
+            btn.config(state="normal" if state == "disabled" else "disabled")
+
+    for row in board_2:
+        for btn in row:
+            state = btn["state"]
+            btn.config(state="normal" if state == "disabled" else "disabled")
 
 def create_radio_buttons(window: tk.Tk, ships_complete_img: list, options: Enum, selected_variable: tk.StringVar, value_function, x: int, y: int):
     """
@@ -172,39 +224,33 @@ def create_radio_buttons(window: tk.Tk, ships_complete_img: list, options: Enum,
 
     return radio_label
 
-def move_widget_list(widget: tk.Label, new_x, new_y):
-    board_columns = game_data["board_columns"]
-
-    new_widget = tk.Label(game_screen, text="New Widget")
-    new_widget.place(x=padding_x + (button_width * board_columns // 2 + 1), y=600)
-    widget.destroy()
-    widget = new_widget
-    # , 
-    # widget.place_forget()
-    # widget.place_configure(x=padding_x + (button_width * board_colums // 2 + 1), y=600)
+def move_widget(widget: tk.Widget, new_x, new_y):
+    toggle_board()
     widget.place_forget()
-    widget.place(x=new_x, y=new_y)
-    # widget.place(x=padding_x + (button_width * board_colums // 2 + 1), y=600)
+    widget.place_configure(x=new_x, y=new_y)
 
 def setup_game_screen(game_screen: tk.Tk, ships_complete_img: list, selected_ship: tk.StringVar, selected_orientation: tk.StringVar):
     """
     Sets up the game screen with necessary labels and widgets.
     """
-    board_rows = game_data["board_rows"]
     board_columns = game_data["board_columns"]
+    button_width = game_data["button_width"]
 
     game_state_label = tk.Label(game_screen, text="Posicione sus barcos", font=Font(family="Times New Roman", size=17))
     game_state_label.place(x=padding_x, y=padding_y - 50)
-    ships_selector_div = create_radio_buttons(game_screen, ships_complete_img, ships, selected_ship, lambda ship: ship.name, padding_x, 500)
-    orientation_selector_div = create_radio_buttons(game_screen, ships_complete_img, Orientation, selected_orientation, lambda orientation: orientation.name, padding_x + 200, 500)
 
-    ships_placed_button = tk.Button(
-        game_screen,
-        text="Guardar Posiciones",
-        bg="blue",
-        fg="white",
-        command=lambda: move_widget_list(ships_selector_div, padding_x + (button_width * board_columns // 2 + 1), 500)
-    ).place(x=padding_x + 500, y=500)
+    setup_div = tk.Label(game_screen, text="Seleccione un barco y una orientación", font=("Times New Roman", 12), height=300)
+
+    ships_selector_div = create_radio_buttons(setup_div, ships_complete_img, ships, selected_ship, lambda ship: ship.name, 0, 20)
+    orientation_selector_div = create_radio_buttons(setup_div, ships_complete_img, Orientation, selected_orientation, lambda orientation: orientation.name, 200, 20)
+
+    ships_placed_button = tk.Button(setup_div, text="Guardar Posiciones", bg="blue", fg="white",
+        command=lambda: move_widget(setup_div, padding_x + (button_width * ((board_columns // 2) + 1)), 500)
+    )
+    ships_placed_button.place(x=setup_div.winfo_reqwidth() // 2 - 50, y=250)
+
+    setup_div.configure(width=ships_selector_div.winfo_reqwidth() + orientation_selector_div.winfo_reqwidth(), height=300)
+    setup_div.place(x=padding_x, y=500)
 
 def run_game_loop():
     """
@@ -225,18 +271,19 @@ def main():
     Initializes the game by generating ship images and creating the game board.
     Then, it starts the game loop by running the game screen.
     """
-    board_rows = game_data["board_rows"]
-    board_columns = game_data["board_columns"]
+    global padding_x
     
-    window_menu = create_welcome_screen(padding_x)
+    window_menu = create_welcome_screen()
     window_menu.mainloop()
 
-    window_new_game = create_new_game_screen(padding_x, board_columns, board_rows)
+    window_new_game = create_new_game_screen()
     window_new_game.mainloop()
 
-    print(board_columns, board_rows)
+    board_rows = game_data["board_rows"]
+    board_columns = game_data["board_columns"]
 
-    game_screen = create_game_screen(padding_x, board_columns)
+    game_screen = create_game_screen()
+    padding_x = (screen_width // 2) - (game_data["button_width"] * (board_columns // 2 + 0.5))
 
     selected_ship = tk.StringVar(value=Ship.DESTRUCTOR.name)
     selected_orientation = tk.StringVar(value=Orientation.TOP.name)

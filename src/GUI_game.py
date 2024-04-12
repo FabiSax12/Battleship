@@ -3,7 +3,6 @@ from tkinter import messagebox
 import tk_widgets.custom_tk_widgets as custom
 from game_data import game_data
 
-button_width = game_data["button_width"]
 players = game_data["players"]
 
 root = tk.Tk()
@@ -24,7 +23,7 @@ def register_players(name: str):
 
     players.append(new_player)
 
-def set_game_config(window, player_name1: tk.Entry, player_name2: tk.Entry, rows_box: tk.Entry, columns_box: tk.Entry, board_rows: int, board_columns: int):
+def set_game_config(window, player_name1: tk.Entry, player_name2: tk.Entry, rows_box: tk.Entry, columns_box: tk.Entry):
     name1 = player_name1.get()
     name2 = player_name2.get()
     
@@ -53,6 +52,8 @@ def set_game_config(window, player_name1: tk.Entry, player_name2: tk.Entry, rows
         
     try:
         columns = int(columns_box.get())
+
+        game_data["button_width"] = (screen_width - 300) // (columns + 1)
         
         if  columns < 20:
             tk.messagebox.showinfo("Error", "El número de columnas debe ser mínimo 20.")
@@ -75,13 +76,8 @@ def set_game_config(window, player_name1: tk.Entry, player_name2: tk.Entry, rows
     window.destroy()
 
 def center_window(window: tk.Tk, window_width: int, window_height: int) -> list:
-    # Get width and height of the screen
-    screen_width = window.winfo_screenwidth()
-    screen_height = window.winfo_screenheight()
-
-    # Positionate window in center of the screen
-    pos_x = round(screen_width/2 - window_width/2)
-    pos_y = round(screen_height/2 - window_height/2)
+    pos_x = screen_width // 2 - window_width // 2
+    pos_y = screen_height // 2 - window_height // 2
 
     return [pos_x, pos_y]
 
@@ -94,25 +90,15 @@ def center_widget(widget: tk.Widget, window_width: int, window_height: int, x = 
 
     widget.place_configure(x=new_x, y=new_y)
 
-def create_game_screen(padding_x, board_columns) -> tk.Tk:
+def create_game_screen() -> tk.Tk:
     # Graphic Interface
     game_screen = tk.Tk()
     game_screen.title("Battleship")
-
-    # Calculate width and height of the window
-    window_width = int((button_width * board_columns) + (padding_x * 2) + button_width)
-    # window_height = int((button_width * board_rows) + (padding_y * 2))
-    window_height = int(game_screen.winfo_screenheight())
-
-    [pos_x, pos_y] = center_window(game_screen, window_width, window_height)
-
-    game_screen.geometry(f"{window_width}x{window_height}+{pos_x}+{pos_y}")
-    # game_screen.resizable(0, 0)
-
     game_screen.protocol("WM_DELETE_WINDOW", exit)
+    game_screen.state("zoomed")
     return game_screen
 
-def create_new_game_screen(padding_x, board_columns, board_rows) -> tk.Tk:
+def create_new_game_screen() -> tk.Tk:
     window_player_form = tk.Tk()
 
     window_player_form.title("Menú")
@@ -170,9 +156,7 @@ def create_new_game_screen(padding_x, board_columns, board_rows) -> tk.Tk:
             player_name1, 
             player_name2, 
             rows_entry, 
-            columns_entry, 
-            board_columns, 
-            board_rows
+            columns_entry
         )
     )
     center_widget(accept_button, window_width, window_height, y=320, w_divider=2)
@@ -180,7 +164,7 @@ def create_new_game_screen(padding_x, board_columns, board_rows) -> tk.Tk:
     window_player_form.protocol("WM_DELETE_WINDOW", exit)
     return window_player_form
 
-def create_welcome_screen(padding_x) -> tk.Tk:
+def create_welcome_screen() -> tk.Tk:
     window_menu = tk.Tk()
     window_menu.title("Menú")
     window_menu.configure(bg = "white")
