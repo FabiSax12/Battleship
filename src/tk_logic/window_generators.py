@@ -1,7 +1,7 @@
-import tkinter as tk
-from tkinter import messagebox
-import tk_widgets.custom_tk_widgets as custom
-from game_data import game_data
+import tkinter          as tk
+import tk_logic.custom_widgets as custom
+from tkinter            import messagebox
+from game_data          import game_data, save_game_data
 
 players = game_data["players"]
 
@@ -96,6 +96,7 @@ def create_game_screen() -> tk.Tk:
     game_screen.title("Battleship")
     game_screen.protocol("WM_DELETE_WINDOW", exit)
     game_screen.state("zoomed")
+    custom.Button(game_screen, "Guardar", lambda: save_game_data()).place(x=0, y=0)
     return game_screen
 
 def create_new_game_screen() -> tk.Tk:
@@ -164,7 +165,7 @@ def create_new_game_screen() -> tk.Tk:
     window_player_form.protocol("WM_DELETE_WINDOW", exit)
     return window_player_form
 
-def create_welcome_screen() -> tk.Tk:
+def create_welcome_screen(start_new_game, start_old_game) -> tk.Tk:
     window_menu = tk.Tk()
     window_menu.title("Menú")
     window_menu.configure(bg = "white")
@@ -180,10 +181,10 @@ def create_welcome_screen() -> tk.Tk:
     welcome = custom.Label(window_menu,"¡Bienvenidos a Battleship!", 20)
     center_widget(welcome, window_width, window_height, y=20)
 
-    load_game_btn = custom.Button(window_menu, "Cargar Partida", lambda: window_menu.destroy())
+    load_game_btn = custom.Button(window_menu, "Cargar Partida", lambda: start_old_game(window_menu))
     center_widget(load_game_btn, window_width, window_height, y=260, w_divider=4, x_fraction=1)
 
-    create_game_btn = custom.Button(window_menu, "Crear partida", lambda: window_menu.destroy())
+    create_game_btn = custom.Button(window_menu, "Crear partida", lambda: start_new_game(window_menu))
     center_widget(create_game_btn, window_width, window_height, y=260, w_divider=4, x_fraction=3)
 
     window_menu.protocol("WM_DELETE_WINDOW", exit)
