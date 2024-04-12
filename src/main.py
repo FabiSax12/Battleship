@@ -5,6 +5,7 @@ from turtle import setup
 from PIL            import ImageTk, Image
 from enum           import Enum
 
+import tk_widgets.custom_tk_widgets as custom
 from game_data      import ships, ships_Tkinter_images, game_data
 from enums          import Orientation, Ship
 from GUI_game       import create_game_screen, create_new_game_screen, create_welcome_screen, screen_height, screen_width
@@ -201,7 +202,7 @@ def create_radio_buttons(window: tk.Tk, ships_complete_img: list, options: Enum,
         x: The x-coordinate where the radio buttons will be placed.
         y: The y-coordinate where the first radio button will be placed.
     """
-    radio_label = tk.Label(window, text="Seleccione un barco", font=("Times New Roman", 12), height=300)
+    radio_label = custom.Label(window, "Seleccione un barco", 12, height=300)
     radio_label.place(x=x, y=y)
 
     for i, option in enumerate(options):
@@ -244,8 +245,10 @@ def setup_game_screen(game_screen: tk.Tk, ships_complete_img: list, selected_shi
     ships_selector_div = create_radio_buttons(setup_div, ships_complete_img, ships, selected_ship, lambda ship: ship.name, 0, 20)
     orientation_selector_div = create_radio_buttons(setup_div, ships_complete_img, Orientation, selected_orientation, lambda orientation: orientation.name, 200, 20)
 
-    ships_placed_button = tk.Button(setup_div, text="Guardar Posiciones", bg="blue", fg="white",
-        command=lambda: move_widget(setup_div, padding_x + (button_width * ((board_columns // 2) + 1)), 500)
+    ships_placed_button = custom.Button(
+        setup_div, 
+        "Guardar Posiciones",
+        lambda: move_widget(setup_div, padding_x + (button_width * ((board_columns // 2) + 1)), 500)
     )
     ships_placed_button.place(x=setup_div.winfo_reqwidth() // 2 - 50, y=250)
 
