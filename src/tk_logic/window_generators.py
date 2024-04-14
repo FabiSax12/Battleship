@@ -2,6 +2,7 @@ import tkinter          as tk
 import tk_logic.custom_widgets as custom
 from tkinter            import messagebox
 from game_data          import game_data, save_game_data
+from game_logic.config  import set_game_config
 
 players = game_data["players"]
 
@@ -10,72 +11,7 @@ screen_width = root.winfo_screenwidth()
 screen_height = root.winfo_screenheight()
 root.destroy()
 
-def register_players(name: str):
-    new_player = {
-        "nickname": name,
-        "poins": 0,
-        "ships": {
-            "acorazado": 0,
-            "crucero": 0,
-            "destructor": 0
-        }
-    }
-
-    players.append(new_player)
-
-def set_game_config(window, player_name1: tk.Entry, player_name2: tk.Entry, rows_box: tk.Entry, columns_box: tk.Entry):
-    name1 = player_name1.get()
-    name2 = player_name2.get()
-    
-    if name1 == "" or name2 == "":
-        tk.messagebox.showinfo("Error", "Debe registrar los jugadores.")
-        return
-        
-    elif name1 == name2:
-        tk.messagebox.showinfo("Error", "Los nombres de los jugadores deben ser diferentes.")
-        return
-        
-   
-    try:
-        rows = int(rows_box.get())
-        
-        if  rows < 10:
-            tk.messagebox.showinfo("Error", "El número de filas debe ser mínimo 10.")
-            return
-            
-        else:
-            game_data["board_rows"] = rows
-            
-    except ValueError:
-        tk.messagebox.showinfo("Error", "El número de filas debe ser un número entero positivo.")
-        return
-        
-    try:
-        columns = int(columns_box.get())
-
-        game_data["button_width"] = (screen_width - 300) // (columns + 1)
-        
-        if  columns < 20:
-            tk.messagebox.showinfo("Error", "El número de columnas debe ser mínimo 20.")
-            return
-            
-        elif columns % 2 != 0:
-            tk.messagebox.showinfo("Error", "El número de columnas debe ser PAR.")
-            return
-            
-        else:
-            game_data["board_columns"] = columns
-
-    except ValueError:
-        tk.messagebox.showinfo("Error", "El número de columnas debe ser un número entero positivo.")
-        return
-          
-    register_players(name1)
-    register_players(name2)
-    
-    window.destroy()
-
-def center_window(window: tk.Tk, window_width: int, window_height: int) -> list:
+def center_window(window_width: int, window_height: int) -> list:
     pos_x = screen_width // 2 - window_width // 2
     pos_y = screen_height // 2 - window_height // 2
 
@@ -97,7 +33,7 @@ def create_save_game_screen() -> tk.Tk:
     window_width = screen_width // 4
     window_height = screen_height // 2
 
-    [pos_x, pos_y] = center_window(window_save_game, window_width, window_height)
+    [pos_x, pos_y] = center_window(window_width, window_height)
 
     window_save_game.geometry(f"{window_width}x{window_height}+{pos_x}+{pos_y}")
     window_save_game.resizable(0, 0)
@@ -148,7 +84,7 @@ def create_new_game_screen() -> tk.Tk:
     window_width = int(screen_width // 2)
     window_height = int(screen_height // 2)
 
-    [pos_x, pos_y] = center_window(window_player_form, window_width, window_height)
+    [pos_x, pos_y] = center_window(window_width, window_height)
 
     window_player_form.geometry(f"{window_width}x{window_height}+{pos_x}+{pos_y}")
     window_player_form.resizable(0,0)
@@ -194,7 +130,8 @@ def create_new_game_screen() -> tk.Tk:
         window_player_form, 
         "Continuar", 
         lambda: set_game_config(
-            window_player_form, 
+            window_player_form,
+            screen_width,
             player_name1, 
             player_name2, 
             rows_entry, 
@@ -215,7 +152,7 @@ def create_welcome_screen(start_new_game, start_old_game) -> tk.Tk:
     window_width = int(screen_width // 2)
     window_height = int(screen_height // 2)
 
-    [pos_x, pos_y] = center_window(window_menu, window_width, window_height)
+    [pos_x, pos_y] = center_window(window_width, window_height)
 
     window_menu.geometry(f"{window_width}x{window_height}+{pos_x}+{pos_y}")
     window_menu.resizable(0, 0)
