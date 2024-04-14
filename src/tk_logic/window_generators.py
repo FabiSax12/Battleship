@@ -96,7 +96,7 @@ def create_game_screen() -> tk.Tk:
     game_screen.title("Battleship")
     game_screen.protocol("WM_DELETE_WINDOW", exit)
     game_screen.state("zoomed")
-    custom.Button(game_screen, "Guardar", lambda: save_game_data()).place(x=0, y=0)
+    custom.Button(game_screen, "Guardar", lambda: save_game_data("mi_partida")).place(x=0, y=0)
     return game_screen
 
 def create_new_game_screen() -> tk.Tk:

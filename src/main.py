@@ -102,26 +102,20 @@ def start_new_game(window: tk.Tk):
 
     game_screen.mainloop()
 
-    
-
 def start_old_game(window: tk.Tk):
     window.destroy()
-    load_game_data()
-
-    print(game_data)
+    load_game_data("mi_partida")
 
     board_columns = game_data["board_columns"]
-    board_1 = game_data["board_1"]
-    board_2 = game_data["board_2"]
     padding_x = (screen_width // 2) - (game_data["button_width"] * (board_columns // 2 + 0.5))
 
     game_screen = create_game_screen()
 
     generate_board(game_screen, padding_x)
-    place_buttons_on_board(board_1, padding_x)
-    place_buttons_on_board(board_2, padding_x + (game_data["button_width"] * (board_columns // 2 + 1)))
+    place_buttons_on_board(game_data["board_1"], padding_x)
+    place_buttons_on_board(game_data["board_2"], padding_x + (game_data["button_width"] * (board_columns // 2 + 1)))
     
-    change_board_buttons_command(lambda x, y: print(x, y))
+    change_board_buttons_command(lambda board,  x, y: print("boom"))
 
     game_screen.mainloop()
 
@@ -129,4 +123,5 @@ def main():
     window_menu = create_welcome_screen(start_new_game, start_old_game)
     window_menu.mainloop()
 
-main()
+if __name__ == "__main__":
+    main()
