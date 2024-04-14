@@ -12,7 +12,16 @@ game_data = {
     "board_1": [],
     "board_2": [],
     "board_1_ships": [],
-    "board_2_ships": []
+    "board_2_ships": [],
+    "saved_games": [
+        file.split(".")[0] for file in os.listdir(
+            os.path.join(
+                os.getenv("HOME" if os.name == "posix" else "USERPROFILE"), 
+                "Documents", 
+                "battleship_data"
+            )
+        ) if file.endswith(".json")
+    ],
 }
 
 ships = {
@@ -47,7 +56,6 @@ def load_game_data(file_name: str = "game_data"):
     
     game_data_path = os.path.join(documents_path, "battleship_data", f"{file_name}.json")
 
-    print(game_data_path)
 
     if os.path.exists(game_data_path):
         with open(game_data_path, "r") as file:
@@ -59,3 +67,5 @@ def load_game_data(file_name: str = "game_data"):
     else:
         print(f"El archivo {file_name} no existe en la carpeta de datos del juego.")
         return None
+    
+    print(game_data)

@@ -90,13 +90,54 @@ def center_widget(widget: tk.Widget, window_width: int, window_height: int, x = 
 
     widget.place_configure(x=new_x, y=new_y)
 
+def create_save_game_screen() -> tk.Tk:
+    window_save_game = tk.Tk()
+    window_save_game.title("Guardar Partida")
+    
+    window_width = screen_width // 4
+    window_height = screen_height // 2
+
+    [pos_x, pos_y] = center_window(window_save_game, window_width, window_height)
+
+    window_save_game.geometry(f"{window_width}x{window_height}+{pos_x}+{pos_y}")
+    window_save_game.resizable(0, 0)
+
+    save_game_label = custom.Label(window_save_game, "Nombre de la partida:")
+    center_widget(save_game_label, window_width, window_height, y=window_height // 10)
+
+    save_game_entry = custom.Entry(window_save_game)
+    center_widget(save_game_entry, window_width, window_height, y=window_height // 10 + 50)
+
+    save_game_button = custom.Button(window_save_game, "Guardar", lambda: save_game_data(save_game_entry.get()))
+    center_widget(save_game_button, window_width, window_height, y=window_height // 10 + 100)
+
+    other_saved_games = tk.Frame(window_save_game, height=window_height // 2)
+    other_saved_games.place(x=0, y=window_height // 2, width=window_width)
+    
+    scrollbar = tk.Scrollbar(other_saved_games, orient=tk.VERTICAL)
+    scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+    
+    listbox = tk.Listbox(other_saved_games, yscrollcommand=scrollbar.set)
+    listbox.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, pady=50)
+    
+    custom.Label(other_saved_games, "Sobrescribir partida guardada").place(x=0, y=0)
+
+    for file_name in game_data["saved_games"]:
+        listbox.insert(tk.END, file_name)
+
+    listbox.bind("<Double-Button-1>", lambda event: save_game_data(listbox.get(listbox.curselection()[0])))
+
+    scrollbar.config(command=listbox.yview)
+
+    return window_save_game
+
 def create_game_screen() -> tk.Tk:
     # Graphic Interface
     game_screen = tk.Tk()
     game_screen.title("Battleship")
     game_screen.protocol("WM_DELETE_WINDOW", exit)
     game_screen.state("zoomed")
-    custom.Button(game_screen, "Guardar", lambda: save_game_data("mi_partida")).place(x=0, y=0)
+    custom.Button(game_screen, "Guardar", lambda: create_save_game_screen().mainloop()).place(x=0, y=0)
     return game_screen
 
 def create_new_game_screen() -> tk.Tk:
@@ -166,6 +207,7 @@ def create_new_game_screen() -> tk.Tk:
     return window_player_form
 
 def create_welcome_screen(start_new_game, start_old_game) -> tk.Tk:
+
     window_menu = tk.Tk()
     window_menu.title("Menú")
     window_menu.configure(bg = "white")

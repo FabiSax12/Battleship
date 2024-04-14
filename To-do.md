@@ -10,6 +10,6 @@
 - ❌ Marcar y detener barcos dañados
 - ❌ Explotar barcos
 
-❌ Guardar Partida
+✔ Guardar Partida
 
-❌ Cargar partida
+✔ Cargar partida
