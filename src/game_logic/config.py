@@ -16,7 +16,7 @@ def register_players(name: str):
 
     players.append(new_player)
 
-def set_game_config(window, screen_width, player_name1: tk.Entry, player_name2: tk.Entry, rows_box: tk.Entry, columns_box: tk.Entry):
+def set_game_config(window, screen_width, screen_height, player_name1: tk.Entry, player_name2: tk.Entry, rows_box: tk.Entry, columns_box: tk.Entry):
     name1 = player_name1.get()
     name2 = player_name2.get()
     
@@ -28,9 +28,13 @@ def set_game_config(window, screen_width, player_name1: tk.Entry, player_name2: 
         tk.messagebox.showinfo("Error", "Los nombres de los jugadores deben ser diferentes.")
         return
         
-   
+    button_width = 0
+    button_height = 0
+
     try:
         rows = int(rows_box.get())
+
+        button_height = screen_height // 2 // rows
         
         if  rows < 10:
             tk.messagebox.showinfo("Error", "El número de filas debe ser mínimo 10.")
@@ -46,7 +50,7 @@ def set_game_config(window, screen_width, player_name1: tk.Entry, player_name2: 
     try:
         columns = int(columns_box.get())
 
-        game_data["button_width"] = (screen_width - 300) // (columns + 1)
+        button_width = (screen_width - 300) // (columns + 1)
         
         if  columns < 20:
             tk.messagebox.showinfo("Error", "El número de columnas debe ser mínimo 20.")
@@ -63,6 +67,8 @@ def set_game_config(window, screen_width, player_name1: tk.Entry, player_name2: 
         tk.messagebox.showinfo("Error", "El número de columnas debe ser un número entero positivo.")
         return
           
+    game_data["button_width"] = button_width if button_width < button_height else button_height
+
     register_players(name1)
     register_players(name2)
     

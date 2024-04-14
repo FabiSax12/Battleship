@@ -67,5 +67,3 @@ def load_game_data(file_name: str = "game_data"):
     else:
         print(f"El archivo {file_name} no existe en la carpeta de datos del juego.")
         return None
-    
-    print(game_data)

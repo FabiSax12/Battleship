@@ -132,6 +132,7 @@ def create_new_game_screen() -> tk.Tk:
         lambda: set_game_config(
             window_player_form,
             screen_width,
+            screen_height,
             player_name1, 
             player_name2, 
             rows_entry, 
