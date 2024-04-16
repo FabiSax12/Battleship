@@ -2,8 +2,6 @@ import os
 import json
 from enums import *
 
-# Global variables
-
 game_data = {
     "players": [],
     "button_width": 30,
@@ -18,39 +16,39 @@ game_data = {
     "game_stage": GameStage.PLACING_SHIPS,
 }
 
-ships = {
-    Ship.DESTRUCTOR: ["b1.png"],
-    Ship.CRUCERO: ["b21.png", "b22.png"],
-    Ship.ACORAZADO: ["b31.png", "b32.png", "b33.png"]
-}
-
-ships_Tkinter_images = {
-    Ship.DESTRUCTOR: {orientation: [] for orientation in Orientation},
-    Ship.CRUCERO: {orientation: [] for orientation in Orientation},
-    Ship.ACORAZADO: {orientation: [] for orientation in Orientation},
-}
-
 documents_path = os.path.join(os.getenv("HOME" if os.name == "posix" else "USERPROFILE"), "Documents")
 
-def find_saved_games():
+def find_saved_games() -> None:
+    """
+    Find saved game files in the battleship_data directory and update the saved games list in game_data.
+    If the battleship_data directory does not exist, create it.
+    """
     try:
-        game_data["saved_games"] = [
-            file.split(".")[0] for file in os.listdir(
-                os.path.join(
-                    os.getenv("HOME" if os.name == "posix" else "USERPROFILE"), 
-                    "Documents", 
-                    "battleship_data"
-                )
-            ) if file.endswith(".json")
-        ]
-    except:
-        os.makedirs(f"{documents_path}/battleship_data")
+        directory = os.path.join(
+            os.getenv("HOME" if os.name == "posix" else "USERPROFILE"), 
+            "Documents", 
+            "battleship_data"
+        )
+        game_data["saved_games"] = [file.split(".")[0] for file in os.listdir(directory) if file.endswith(".json")]
+    except FileNotFoundError:
+        os.makedirs(directory)
 
-def save_game_data(file_name: str = "game_data"):
-    if not os.path.exists(f"{documents_path}/battleship_data"):
-        os.makedirs(f"{documents_path}/battleship_data")
+def save_game_data(file_name: str = "game_data") -> None:
+    """
+    Save the game data to a JSON file.
 
-    game_data_path = os.path.join(documents_path, "battleship_data", f"{file_name}.json")
+    Args:
+        file_name: The name of the file to save the game data. Defaults to "game_data".
+    """
+    directory = os.path.join(
+        os.getenv("HOME" if os.name == "posix" else "USERPROFILE"), 
+        "Documents", 
+        "battleship_data"
+    )
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+
+    game_data_path = os.path.join(directory, f"{file_name}.json")
 
     game_data_copy = game_data.copy()
     game_data_copy.pop("board_1", None)
@@ -61,7 +59,13 @@ def save_game_data(file_name: str = "game_data"):
     with open(game_data_path, "w") as file:
         json.dump(game_data_copy, file)
 
-def load_game_data(file_name: str = "game_data"):
+def load_game_data(file_name: str = "game_data") -> None:
+    """
+    Load game data from a JSON file.
+
+    Args:
+        file_name: The name of the file containing the game data. Defaults to "game_data".
+    """
     game_data_path = os.path.join(documents_path, "battleship_data", f"{file_name}.json")
 
     if os.path.exists(game_data_path):
@@ -72,6 +76,5 @@ def load_game_data(file_name: str = "game_data"):
                 game_data[key] = value
 
             game_data["game_stage"] = GameStage[new_game_data["game_stage"]]
-        
     else:
-        print(f"El archivo {file_name} no existe en la carpeta de datos del juego.")
+        print(f"The file {file_name} does not exist in the game data folder.")

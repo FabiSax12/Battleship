@@ -4,9 +4,15 @@ from game_data import game_data
 players = game_data["players"]
 
 def register_players(name: str):
+    """
+    Register a new player with the given name.
+
+    Args:
+        name: The name of the player.
+    """
     new_player = {
         "nickname": name,
-        "poins": 0,
+        "points": 0,
         "ships": {
             "acorazado": 0,
             "crucero": 0,
@@ -17,6 +23,18 @@ def register_players(name: str):
     players.append(new_player)
 
 def set_game_config(window, screen_width, screen_height, player_name1: tk.Entry, player_name2: tk.Entry, rows_box: tk.Entry, columns_box: tk.Entry):
+    """
+    Set the game configuration based on user input.
+
+    Args:
+        window: The Tkinter window.
+        screen_width: The width of the screen.
+        screen_height: The height of the screen.
+        player_name1: The Tkinter Entry widget containing the name of player 1.
+        player_name2: The Tkinter Entry widget containing the name of player 2.
+        rows_box: The Tkinter Entry widget containing the number of rows.
+        columns_box: The Tkinter Entry widget containing the number of columns.
+    """
     name1 = player_name1.get()
     name2 = player_name2.get()
     
