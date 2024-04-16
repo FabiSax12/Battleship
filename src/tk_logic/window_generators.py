@@ -1,7 +1,8 @@
+from calendar import c
 import tkinter          as tk
 import tk_logic.custom_widgets as custom
 from tkinter            import messagebox
-from game_data          import game_data, save_game_data
+from game_data          import find_saved_games, game_data, save_game_data
 from game_logic.config  import set_game_config
 
 players = game_data["players"]
@@ -26,6 +27,44 @@ def center_widget(widget: tk.Widget, window_width: int, window_height: int, x = 
 
     widget.place_configure(x=new_x, y=new_y)
 
+def list_of_saved_games(parent_window, title, action) -> tk.Frame:
+    saved_games = custom.Div(parent_window)
+    saved_games.title(title)
+    
+    scrollbar = custom.Scrollbar(saved_games)
+    listbox = custom.Listbox(saved_games, yscrollcommand=scrollbar.set)
+    
+    scrollbar.axis("y")
+    scrollbar.config(command=listbox.yview)
+    
+    listbox.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+    listbox.double_click(action, destroy=True)
+
+    find_saved_games()
+    for file_name in game_data["saved_games"]:
+        listbox.insert(tk.END, file_name)
+
+    return saved_games
+
+def create_load_game_screen(window: tk.Tk, start_old_game) -> tk.Tk:
+    window.destroy()
+
+    window_load_game = tk.Tk()
+    window_load_game.title("Cargar Partida")
+
+    window_width = screen_width // 4
+    window_height = screen_height // 2
+
+    [pos_x, pos_y] = center_window(window_width, window_height)
+
+    window_load_game.geometry(f"{window_width}x{window_height}+{pos_x}+{pos_y}")
+    window_load_game.resizable(0, 0)
+
+    saved_games_list = list_of_saved_games(window_load_game, "Partidas Guardadas", start_old_game)
+    saved_games_list.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=50, pady=50)
+    
+    return window_load_game
+
 def create_save_game_screen() -> tk.Tk:
     window_save_game = tk.Tk()
     window_save_game.title("Guardar Partida")
@@ -44,26 +83,16 @@ def create_save_game_screen() -> tk.Tk:
     save_game_entry = custom.Entry(window_save_game)
     center_widget(save_game_entry, window_width, window_height, y=window_height // 10 + 50)
 
-    save_game_button = custom.Button(window_save_game, "Guardar", lambda: save_game_data(save_game_entry.get()))
+    def on_click():
+        save_game_data(save_game_entry.get())
+        window_save_game.destroy()
+
+    save_game_button = custom.Button(window_save_game, "Guardar", on_click)
     center_widget(save_game_button, window_width, window_height, y=window_height // 10 + 100)
 
-    other_saved_games = tk.Frame(window_save_game, height=window_height // 2)
-    other_saved_games.place(x=0, y=window_height // 2, width=window_width)
-    
-    scrollbar = tk.Scrollbar(other_saved_games, orient=tk.VERTICAL)
-    scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
-    
-    listbox = tk.Listbox(other_saved_games, yscrollcommand=scrollbar.set)
-    listbox.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, pady=50)
-    
-    custom.Label(other_saved_games, "Sobrescribir partida guardada").place(x=0, y=0)
-
-    for file_name in game_data["saved_games"]:
-        listbox.insert(tk.END, file_name)
-
-    listbox.bind("<Double-Button-1>", lambda event: save_game_data(listbox.get(listbox.curselection()[0])))
-
-    scrollbar.config(command=listbox.yview)
+    saved_games_list = list_of_saved_games(window_save_game, "Sobreescribir partida guardada", save_game_data)
+    saved_games_list.config(height=window_height // 2, width=window_width)
+    saved_games_list.place(x=0, y=window_height // 2)
 
     return window_save_game
 
@@ -161,7 +190,7 @@ def create_welcome_screen(start_new_game, start_old_game) -> tk.Tk:
     welcome = custom.Label(window_menu,"¡Bienvenidos a Battleship!", 20)
     center_widget(welcome, window_width, window_height, y=20)
 
-    load_game_btn = custom.Button(window_menu, "Cargar Partida", lambda: start_old_game(window_menu))
+    load_game_btn = custom.Button(window_menu, "Cargar Partida", lambda: create_load_game_screen(window_menu, start_old_game).mainloop())
     center_widget(load_game_btn, window_width, window_height, y=260, w_divider=4, x_fraction=1)
 
     create_game_btn = custom.Button(window_menu, "Crear partida", lambda: start_new_game(window_menu))

@@ -102,9 +102,8 @@ def start_new_game(window: tk.Tk):
 
     game_screen.mainloop()
 
-def start_old_game(window: tk.Tk):
-    window.destroy()
-    load_game_data("mi_partida")
+def start_old_game(file_name: str):
+    load_game_data(file_name)
 
     board_columns = game_data["board_columns"]
     padding_x = (screen_width // 2) - (game_data["button_width"] * (board_columns // 2 + 0.5))

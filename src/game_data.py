@@ -13,15 +13,7 @@ game_data = {
     "board_2": [],
     "board_1_ships": [],
     "board_2_ships": [],
-    "saved_games": [
-        file.split(".")[0] for file in os.listdir(
-            os.path.join(
-                os.getenv("HOME" if os.name == "posix" else "USERPROFILE"), 
-                "Documents", 
-                "battleship_data"
-            )
-        ) if file.endswith(".json")
-    ],
+    "saved_games": []
 }
 
 ships = {
@@ -36,9 +28,23 @@ ships_Tkinter_images = {
     Ship.ACORAZADO: {orientation: [] for orientation in Orientation},
 }
 
-def save_game_data(file_name: str = "game_data"):
-    documents_path = os.path.join(os.getenv("HOME" if os.name == "posix" else "USERPROFILE"), "Documents")
+documents_path = os.path.join(os.getenv("HOME" if os.name == "posix" else "USERPROFILE"), "Documents")
 
+def find_saved_games():
+    try:
+        game_data["saved_games"] = [
+            file.split(".")[0] for file in os.listdir(
+                os.path.join(
+                    os.getenv("HOME" if os.name == "posix" else "USERPROFILE"), 
+                    "Documents", 
+                    "battleship_data"
+                )
+            ) if file.endswith(".json")
+        ]
+    except:
+        os.makedirs(f"{documents_path}/battleship_data")
+
+def save_game_data(file_name: str = "game_data"):
     if not os.path.exists(f"{documents_path}/battleship_data"):
         os.makedirs(f"{documents_path}/battleship_data")
 
@@ -52,8 +58,6 @@ def save_game_data(file_name: str = "game_data"):
         json.dump(game_data_copy, file)
 
 def load_game_data(file_name: str = "game_data"):
-    documents_path = os.path.join(os.getenv("HOME" if os.name == "posix" else "USERPROFILE"), "Documents")
-    
     game_data_path = os.path.join(documents_path, "battleship_data", f"{file_name}.json")
 
 
