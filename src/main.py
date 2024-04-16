@@ -1,13 +1,15 @@
 import tkinter                  as tk
+
+from numpy import place
 import tk_logic.custom_widgets  as custom
 
 from tkinter.font               import Font
 from PIL                        import ImageTk, Image
 from enum                       import Enum
-from enums                      import Orientation, Ship
+from enums                      import GameStage, Orientation, Ship
 from game_data                  import ships, game_data, load_game_data
 from tk_logic.window_generators import screen_width, create_game_screen, create_new_game_screen, create_welcome_screen
-from game_logic.ships           import generate_all_ship_images, posisionate_ship
+from game_logic.ships           import generate_all_ship_images, posisionate_ship, print_ship_image
 from game_logic.board           import generate_board, place_buttons_on_board, toggle_board, change_board_buttons_command
 
 # Style
@@ -50,9 +52,15 @@ def create_radio_buttons(window: tk.Tk, ships_complete_img: list, options: Enum,
     return radio_label
 
 def change_player_setup_turn(widget: tk.Widget, new_x, new_y):
-    toggle_board()
-    widget.place_forget()
-    widget.place_configure(x=new_x, y=new_y)
+    if game_data["turn"] == 1:
+        game_data["turn"] = 2
+        toggle_board()
+        widget.place_forget()
+        widget.place_configure(x=new_x, y=new_y)
+        return
+    else:
+        game_data["game_stage"] = GameStage.PLAYING
+        widget.place_forget()
 
 def setup_game_screen(game_screen: tk.Tk, ships_complete_img: list, selected_ship: tk.StringVar, selected_orientation: tk.StringVar):
     """
@@ -74,10 +82,14 @@ def setup_game_screen(game_screen: tk.Tk, ships_complete_img: list, selected_shi
         "Guardar Posiciones",
         lambda: change_player_setup_turn(setup_div, padding_x + (button_width * ((board_columns // 2) + 1)), 500)
     )
-    ships_placed_button.place(x=setup_div.winfo_reqwidth() // 2 - 50, y=250)
 
+    ships_placed_button.place(x=setup_div.winfo_reqwidth() // 2 - 50, y=250)
     setup_div.configure(width=ships_selector_div.winfo_reqwidth() + orientation_selector_div.winfo_reqwidth(), height=300)
     setup_div.place(x=padding_x, y=500)
+    if game_data["turn"] == 1:
+        pass
+    else:
+        setup_div.place(x=padding_x + (button_width * ((board_columns // 2) + 1)), y=500)
 
 def start_new_game(window: tk.Tk):
     global padding_x
@@ -103,6 +115,7 @@ def start_new_game(window: tk.Tk):
     game_screen.mainloop()
 
 def start_old_game(file_name: str):
+    global padding_x
     load_game_data(file_name)
 
     board_columns = game_data["board_columns"]
@@ -114,7 +127,22 @@ def start_old_game(file_name: str):
     place_buttons_on_board(game_data["board_1"], padding_x)
     place_buttons_on_board(game_data["board_2"], padding_x + (game_data["button_width"] * (board_columns // 2 + 1)))
     
-    change_board_buttons_command(lambda board,  x, y: print("boom"))
+    if game_data["game_stage"] == GameStage.PLACING_SHIPS:
+        generate_all_ship_images()
+        selected_ship = tk.StringVar(value=Ship.DESTRUCTOR.name)
+        selected_orientation = tk.StringVar(value=Orientation.TOP.name)
+        ships_complete_img = []
+        setup_game_screen(game_screen, ships_complete_img, selected_ship, selected_orientation)
+
+        if game_data["turn"] == 1:
+            for ship in game_data["board_1_ships"]:
+                print_ship_image(Ship[ship[2]], Orientation[ship[3]], game_data["board_1"], ship[0], ship[1])
+        elif game_data["turn"] == 2:
+            toggle_board()
+            for ship in game_data["board_2_ships"]:
+                print_ship_image(Ship[ship[2]], Orientation[ship[3]], game_data["board_2"], ship[0], ship[1])
+    
+    change_board_buttons_command(lambda board, x, y: print("boom"))
 
     game_screen.mainloop()
 

@@ -13,7 +13,9 @@ game_data = {
     "board_2": [],
     "board_1_ships": [],
     "board_2_ships": [],
-    "saved_games": []
+    "saved_games": [],
+    "turn": 1,
+    "game_stage": GameStage.PLACING_SHIPS,
 }
 
 ships = {
@@ -53,6 +55,8 @@ def save_game_data(file_name: str = "game_data"):
     game_data_copy = game_data.copy()
     game_data_copy.pop("board_1", None)
     game_data_copy.pop("board_2", None)
+    game_data_copy.pop("saved_games", None)
+    game_data_copy["game_stage"] = game_data_copy["game_stage"].name
 
     with open(game_data_path, "w") as file:
         json.dump(game_data_copy, file)
@@ -60,14 +64,14 @@ def save_game_data(file_name: str = "game_data"):
 def load_game_data(file_name: str = "game_data"):
     game_data_path = os.path.join(documents_path, "battleship_data", f"{file_name}.json")
 
-
     if os.path.exists(game_data_path):
         with open(game_data_path, "r") as file:
             new_game_data = json.load(file)
 
             for key, value in new_game_data.items():
                 game_data[key] = value
+
+            game_data["game_stage"] = GameStage[new_game_data["game_stage"]]
         
     else:
         print(f"El archivo {file_name} no existe en la carpeta de datos del juego.")
-        return None
