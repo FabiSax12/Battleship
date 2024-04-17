@@ -23,15 +23,5 @@ class Color(Enum):
     RED = "#FB3640"
     GRAY = "#726E75"
     
-    def movement_boats(movement: Orientation):
-        new c
-        match movement:
-            case Orientation.TOP:
-                
-            case Orientation.RIGHT:
-                
-            case Orientation.BOTTOM:
-                
-            case Orientation.LEFT:
             
                 

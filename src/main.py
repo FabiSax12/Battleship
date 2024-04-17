@@ -7,7 +7,7 @@ from enums                      import GameStage, Orientation, Ship
 from game_data                  import game_data, load_game_data
 from tk_logic.window_generators import screen_width, create_game_screen, create_new_game_screen, create_welcome_screen
 from game_logic.ships           import ships, generate_all_ship_images, place_ship_on_board, print_ship_image
-from game_logic.board           import generate_board, place_buttons_on_board, toggle_board, change_board_buttons_command
+from game_logic.board           import clean_board, generate_board, place_buttons_on_board, toggle_board, change_board_buttons_command
 
 # Style
 padding_x = None
@@ -66,14 +66,20 @@ def change_player_setup_turn(widget: tk.Widget, new_x, new_y):
     Returns:
         None
     """
-    if game_data["turn"] == 1:
-        game_data["turn"] = 2
+    turn = game_data["turn"]
+    board = game_data["board_1"] if turn == 1 else game_data["board_2"]
+
+    if turn == 1:
+        turn = 2
         toggle_board()
         widget.place_forget()
         widget.place_configure(x=new_x, y=new_y)
+        clean_board(board)
     else:
-        game_data["game_stage"] = GameStage.PLAYING
+        clean_board(board)
         widget.place_forget()
+        game_data["game_stage"] = GameStage.PLAYING
+        change_board_buttons_command(lambda board, x, y: print("BOOM"))
         
 def start_screen_game():
     #LOGICA PARA INICIAR NUEVA PANTALLA

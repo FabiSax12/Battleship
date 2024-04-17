@@ -126,6 +126,4 @@ def change_board_buttons_command(new_action: callable):
     for i, row in enumerate(board_2):
         for j, btn in enumerate(row):
             btn.config(command=lambda x=j, y=i, board=board_2: new_action(board, x, y))
-            
-def move_boats(Orientation: Orientation):
-    
+
