@@ -1,7 +1,19 @@
 import tkinter as tk
 from PIL import ImageTk, Image
 from enums import Orientation, Ship
-from game_data import ships, ships_Tkinter_images, game_data
+from game_data import game_data
+
+ships = {
+    Ship.DESTRUCTOR: ["b1.png"],
+    Ship.CRUCERO: ["b21.png", "b22.png"],
+    Ship.ACORAZADO: ["b31.png", "b32.png", "b33.png"]
+}
+
+ships_Tkinter_images = {
+    Ship.DESTRUCTOR: {orientation: [] for orientation in Orientation},
+    Ship.CRUCERO: {orientation: [] for orientation in Orientation},
+    Ship.ACORAZADO: {orientation: [] for orientation in Orientation},
+}
 
 def generate_all_ship_images():
     """
@@ -85,7 +97,7 @@ def validate_ship_position(x: int, y: int, ship: Ship, orientation: Orientation,
 
     return True
 
-def posisionate_ship(board_clicked: list[tk.Button], x: int, y: int, selected_ship: tk.StringVar, selected_orientation: tk.StringVar):
+def place_ship_on_board(board_clicked: list[tk.Button], x: int, y: int, selected_ship: tk.StringVar, selected_orientation: tk.StringVar):
     """
     Handles the click event on the game board.
 

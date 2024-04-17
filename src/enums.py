@@ -1,5 +1,10 @@
 from enum import Enum
 
+class GameStage(Enum):
+    PLACING_SHIPS = "placing ships"
+    PLAYING = "playing"
+    END = "end"
+
 class Orientation(Enum):
     TOP = "top"
     RIGHT = "right"
