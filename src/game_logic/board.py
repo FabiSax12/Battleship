@@ -1,6 +1,7 @@
 import tkinter as tk
 from game_data import game_data
 
+
 def place_buttons_on_board(board: list, placement_x: int = None, padding_x: int = 0, padding_y: int = 50):
     """
     Positions the buttons on the game screen based on the provided board and placement coordinates.
@@ -32,6 +33,13 @@ def toggle_board():
         for btn in row:
             state = btn["state"]
             btn.config(state="normal" if state == "disabled" else "disabled")
+            
+def clean_board(board):
+    for row in board:
+        for button in row:
+            button.config(image = '')
+            
+        
 
 def generate_board(window: tk.Tk, padding_x: int = 0):
     """
@@ -88,3 +96,6 @@ def change_board_buttons_command(new_action: callable):
     for i, row in enumerate(board_2):
         for j, btn in enumerate(row):
             btn.config(command=lambda x=j, y=i, board=board_2: new_action(board, x, y))
+            
+def move_boats(Orientation: Orientation):
+    
