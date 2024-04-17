@@ -13,6 +13,8 @@ from game_logic.board           import generate_board, place_buttons_on_board, t
 padding_x = None
 padding_y = 50
 
+button_clicked = False
+
 def create_radio_buttons(window: tk.Tk, ships_complete_img: list, options: Enum, selected_variable: tk.StringVar, value_function, x: int, y: int):
     """
     Create radio buttons for the given options.
@@ -72,6 +74,10 @@ def change_player_setup_turn(widget: tk.Widget, new_x, new_y):
     else:
         game_data["game_stage"] = GameStage.PLAYING
         widget.place_forget()
+        
+def start_screen_game():
+    #LOGICA PARA INICIAR NUEVA PANTALLA
+    print("si")
 
 def setup_game_screen(game_screen: tk.Tk, ships_complete_img: list, selected_ship: tk.StringVar, selected_orientation: tk.StringVar):
     """
