@@ -13,15 +13,17 @@ game_data = {
     "board_2": [],
     "board_1_ships": [],
     "board_2_ships": [],
-    "saved_games": [
-        file.split(".")[0] for file in os.listdir(
-            os.path.join(
-                os.getenv("HOME" if os.name == "posix" else "USERPROFILE"), 
-                "Documents", 
-                "battleship_data"
-            )
-        ) if file.endswith(".json")
-    ],
+    # "saved_games": [
+        
+    #     file.split(".")[0] for file in os.listdir(
+    #         os.path.join(
+    #             os.getenv("HOME" if os.name == "posix" else "USERPROFILE"), 
+    #             "Documents", 
+    #             "battleship_data"
+    #         )
+    #     ) if file.endswith(".json")
+    # ],
+    "saved_game": [],
 }
 
 ships = {

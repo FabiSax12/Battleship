@@ -8,11 +8,14 @@ from enums                      import Orientation, Ship
 from game_data                  import ships, game_data, load_game_data
 from tk_logic.window_generators import screen_width, create_game_screen, create_new_game_screen, create_welcome_screen
 from game_logic.ships           import generate_all_ship_images, posisionate_ship
-from game_logic.board           import generate_board, place_buttons_on_board, toggle_board, change_board_buttons_command
+from game_logic.board           import generate_board, place_buttons_on_board, toggle_board, change_board_buttons_command, clean_board
+
 
 # Style
 padding_x = None
 padding_y = 50
+
+button_clicked = False
 
 def create_radio_buttons(window: tk.Tk, ships_complete_img: list, options: Enum, selected_variable: tk.StringVar, value_function, x: int, y: int):
     """
@@ -50,9 +53,21 @@ def create_radio_buttons(window: tk.Tk, ships_complete_img: list, options: Enum,
     return radio_label
 
 def change_player_setup_turn(widget: tk.Widget, new_x, new_y):
-    toggle_board()
-    widget.place_forget()
-    widget.place_configure(x=new_x, y=new_y)
+    global button_clicked
+    if button_clicked == False:
+        button_clicked = True
+        clean_board(game_data["board_1"])
+        toggle_board()
+        widget.place_forget()
+        widget.place_configure(x=new_x, y=new_y)
+    else:
+        clean_board(game_data["board_2"])
+        start_screen_game()
+        
+def start_screen_game():
+    #LOGICA PARA INICIAR NUEVA PANTALLA
+    print("si")
+ 
 
 def setup_game_screen(game_screen: tk.Tk, ships_complete_img: list, selected_ship: tk.StringVar, selected_orientation: tk.StringVar):
     """
@@ -74,13 +89,13 @@ def setup_game_screen(game_screen: tk.Tk, ships_complete_img: list, selected_shi
         "Guardar Posiciones",
         lambda: change_player_setup_turn(setup_div, padding_x + (button_width * ((board_columns // 2) + 1)), 500)
     )
-    ships_placed_button.place(x=setup_div.winfo_reqwidth() // 2 - 50, y=250)
+    ships_placed_button.place(x=setup_div.winfo_reqwidth() // 2 - 50, y=200)
 
     setup_div.configure(width=ships_selector_div.winfo_reqwidth() + orientation_selector_div.winfo_reqwidth(), height=300)
     setup_div.place(x=padding_x, y=500)
 
 def start_new_game(window: tk.Tk):
-    global padding_x
+    global padding_x 
 
     window.destroy()
     window_new_game = create_new_game_screen()
