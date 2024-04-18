@@ -1,6 +1,12 @@
 import tkinter as tk
 from enums import Color
 
+def center_widget(self: tk.Widget, window: tk.Tk, axis: str, x = None, y = None):
+    if axis == "x":
+        self.place(x=(window.winfo_reqwidth() // 2 - self.winfo_reqwidth()) // 2, y=y)
+    else:
+        self.place(y=(window.winfo_reqheight() - self.winfo_reqheight()) // 2, x=x)
+
 class Button(tk.Button):
     def __init__(self, window: tk.Tk, text: str = "", on_click = None, *args, **kargs):
         super().__init__(
@@ -33,11 +39,14 @@ class Entry(tk.Entry):
 class Div(tk.Frame):
     def __init__(self, window: tk.Tk, *args, **kargs):
         super().__init__(window,*args, **kargs)
-        self.pack_propagate(False)
+        # self.pack_propagate(False)
 
     def title(self, title: str):
         title_label = Label(self, title, 20)
         title_label.pack(side=tk.TOP, fill=tk.X, expand=True)
+
+    def center(self, window: tk.Tk, axis: str, x = None, y = None):
+        center_widget(self, window, axis, x, y)
 
 class Scrollbar(tk.Scrollbar):
     def __init__(self, window: tk.Tk, *args, **kargs):

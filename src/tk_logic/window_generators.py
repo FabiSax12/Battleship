@@ -54,6 +54,29 @@ def center_widget(widget: tk.Widget, window_width: int, window_height: int, x=No
 
     widget.place_configure(x=new_x, y=new_y)
 
+def create_player_info_frame(window: tk.Tk, player: int):
+    player_info = game_data["players"][player]
+
+    player_info_frame = custom.Div(window)
+    player_info_frame.title(player_info["nickname"])
+    player_info_frame.config(width=game_data["board_columns"] // 2 * game_data["button_width"] // 2, height=screen_height // 4)
+
+    points_label = custom.Label(player_info_frame, text=f"Puntos: {player_info['points']}")
+    points_label.pack(anchor="w")
+
+    destructor_label = custom.Label(player_info_frame, text=f"Destructores: {player_info['ships']['destructor']}")
+    destructor_label.pack(anchor="w")
+
+    crucero_label = custom.Label(player_info_frame, text=f"Cruceros: {player_info['ships']['crucero']}")
+    crucero_label.pack(anchor="w")
+
+    acorazado_label = custom.Label(player_info_frame, text=f"Acorazados: {player_info['ships']['acorazado']}")
+    acorazado_label.pack(anchor="w")
+
+    player_info_frame.place(x=0, y=0)
+
+    return player_info_frame
+
 def list_of_saved_games(parent_window, title, action) -> custom.Div:
     """
     Create a list of saved games.
@@ -98,7 +121,7 @@ def create_load_game_screen(window: tk.Tk, start_old_game) -> tk.Tk:
     window.destroy()
 
     window_load_game = tk.Tk()
-    window_load_game.title("Load Game")
+    window_load_game.title("Cargar partida")
 
     window_width = screen_width // 4
     window_height = screen_height // 2
@@ -108,7 +131,7 @@ def create_load_game_screen(window: tk.Tk, start_old_game) -> tk.Tk:
     window_load_game.geometry(f"{window_width}x{window_height}+{pos_x}+{pos_y}")
     window_load_game.resizable(0, 0)
 
-    saved_games_list = list_of_saved_games(window_load_game, "Saved Games", start_old_game)
+    saved_games_list = list_of_saved_games(window_load_game, "Partidas Guardadas", start_old_game)
     saved_games_list.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=50, pady=50)
     
     return window_load_game
@@ -121,7 +144,7 @@ def create_save_game_screen() -> tk.Tk:
         tk.Tk: The save game screen window.
     """
     window_save_game = tk.Tk()
-    window_save_game.title("Save Game")
+    window_save_game.title("Guardar Partida")
     
     window_width = screen_width // 4
     window_height = screen_height // 2
@@ -131,7 +154,7 @@ def create_save_game_screen() -> tk.Tk:
     window_save_game.geometry(f"{window_width}x{window_height}+{pos_x}+{pos_y}")
     window_save_game.resizable(0, 0)
 
-    save_game_label = custom.Label(window_save_game, "Game Name:")
+    save_game_label = custom.Label(window_save_game, "Nombre de la partida:")
     center_widget(save_game_label, window_width, window_height, y=window_height // 10)
 
     save_game_entry = custom.Entry(window_save_game)
@@ -141,10 +164,10 @@ def create_save_game_screen() -> tk.Tk:
         save_game_data(save_game_entry.get())
         window_save_game.destroy()
 
-    save_game_button = custom.Button(window_save_game, "Save", on_click)
+    save_game_button = custom.Button(window_save_game, "Guardar", on_click)
     center_widget(save_game_button, window_width, window_height, y=window_height // 10 + 100)
 
-    saved_games_list = list_of_saved_games(window_save_game, "Overwrite saved game", save_game_data)
+    saved_games_list = list_of_saved_games(window_save_game, "Sobreescribir partida guardada", save_game_data)
     saved_games_list.config(height=window_height // 2, width=window_width)
     saved_games_list.place(x=0, y=window_height // 2)
 
@@ -161,7 +184,7 @@ def create_game_screen() -> tk.Tk:
     game_screen.title("Battleship")
     game_screen.protocol("WM_DELETE_WINDOW", exit)
     game_screen.state("zoomed")
-    custom.Button(game_screen, "Save", lambda: create_save_game_screen().mainloop()).place(x=0, y=0)
+    custom.Button(game_screen, "Guardar", lambda: create_save_game_screen().mainloop()).place(x=0, y=0)
     return game_screen
 
 def create_new_game_screen() -> tk.Tk:
@@ -183,24 +206,24 @@ def create_new_game_screen() -> tk.Tk:
     window_player_form.geometry(f"{window_width}x{window_height}+{pos_x}+{pos_y}")
     window_player_form.resizable(0,0)
     
-    game_log = custom.Label(window_player_form, "Player Registration", 17)
+    game_log = custom.Label(window_player_form, "Registro de jugadores", 17)
     center_widget(game_log, window_width, window_height, y=20)
     
-    player1 = custom.Label(window_player_form, "Player 1 Name:")
+    player1 = custom.Label(window_player_form, "Jugador 1:")
     center_widget(player1, window_width, window_height, y=100, w_divider=4, x_fraction=1)
     player_name1 = custom.Entry(window_player_form)
     center_widget(player_name1, window_width, window_height, y=150, w_divider=4, x_fraction=1)
 
-    player2 = custom.Label(window_player_form, "Player 2 Name:")
+    player2 = custom.Label(window_player_form, "Jugador 2:")
     center_widget(player2, window_width, window_height, y=100, w_divider=4, x_fraction=3)
     player_name2 = custom.Entry(window_player_form)
     center_widget(player_name2, window_width, window_height, y=150, w_divider=4, x_fraction=3)
     
-    game_settings = custom.Label(window_player_form, "Board Configuration", 17)
+    game_settings = custom.Label(window_player_form, "Tablero", 17)
     center_widget(game_settings, window_width, window_height, y=200)
     
     # --- Rows and Columns ---
-    rows_label = custom.Label(window_player_form, "Number of Rows:")
+    rows_label = custom.Label(window_player_form, "Numero de filas:")
     rows_entry = custom.Entry(window_player_form)
     rows_entry.config(width=5)
     rows_notice = custom.Label(window_player_form, "Min:10", 10)
@@ -209,7 +232,7 @@ def create_new_game_screen() -> tk.Tk:
     center_widget(rows_entry, window_width, window_height, y=290, w_divider=4, x_fraction=1)
     center_widget(rows_notice, window_width, window_height, y=320, w_divider=4, x_fraction=1)
 
-    columns_label = custom.Label(window_player_form, "Number of Columns:")
+    columns_label = custom.Label(window_player_form, "Numero de columnas:")
     columns_entry = custom.Entry(window_player_form)
     columns_entry.config(width=5)
     columns_notice = custom.Label(window_player_form, "Min:20", 10)
@@ -259,13 +282,13 @@ def create_welcome_screen(start_new_game, start_old_game) -> tk.Tk:
     window_menu.geometry(f"{window_width}x{window_height}+{pos_x}+{pos_y}")
     window_menu.resizable(0, 0)
 
-    welcome = custom.Label(window_menu, "Welcome to Battleship!", 20)
+    welcome = custom.Label(window_menu, "¡Bienvenidos a Battleship!", 20)
     center_widget(welcome, window_width, window_height, y=20)
 
-    load_game_btn = custom.Button(window_menu, "Load Game", lambda: create_load_game_screen(window_menu, start_old_game).mainloop())
+    load_game_btn = custom.Button(window_menu, "Cargar Partida", lambda: create_load_game_screen(window_menu, start_old_game).mainloop())
     center_widget(load_game_btn, window_width, window_height, y=260, w_divider=4, x_fraction=1)
 
-    create_game_btn = custom.Button(window_menu, "Start New Game", lambda: start_new_game(window_menu))
+    create_game_btn = custom.Button(window_menu, "Nueva Partida", lambda: start_new_game(window_menu))
     center_widget(create_game_btn, window_width, window_height, y=260, w_divider=4, x_fraction=3)
 
     window_menu.protocol("WM_DELETE_WINDOW", exit)

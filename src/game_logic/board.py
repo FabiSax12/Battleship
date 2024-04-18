@@ -47,8 +47,6 @@ def clean_board(board):
         for button in row:
             button.config(image = '')
             
-        
-
 def generate_board(window: tk.Tk, padding_x: int = 0):
     """
     Generates the game boards, initializes buttons, and places them on the game screen.
