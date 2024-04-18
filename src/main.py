@@ -1,7 +1,6 @@
 from cmath import e
 import tkinter                  as tk
 
-from matplotlib import container
 import tk_logic.custom_widgets  as custom
 from tkinter.font               import Font
 from PIL                        import ImageTk, Image
@@ -152,7 +151,7 @@ def setup_game_screen(game_screen: tk.Tk, ships_complete_img: list, selected_shi
     ships_placed_button = custom.Button(
         ships_placed_container, 
         "Guardar posiciones",
-        lambda: change_player_setup_turn(setup_div, padding_x + (button_width * ((board_columns // 2) + 1)), 500)
+        lambda: change_player_setup_turn(setup_div)
     )
     ships_placed_button.pack(side=tk.TOP, pady=30)
 

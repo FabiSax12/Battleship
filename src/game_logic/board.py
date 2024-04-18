@@ -43,6 +43,7 @@ def toggle_board():
             btn.config(state="normal" if state == "disabled" else "disabled")
             
 def clean_board(board):
+    print("borrando")
     for row in board:
         for button in row:
             button.config(image = '')

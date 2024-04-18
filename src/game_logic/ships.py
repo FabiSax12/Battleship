@@ -112,3 +112,36 @@ def place_ship_on_board(board_clicked: list[tk.Button], x: int, y: int, selected
         print_ship_image(Ship[selected_ship.get()], Orientation[selected_orientation.get()], board_clicked, x, y)
         
         board_ships.append((x, y, selected_ship.get(), selected_orientation.get()))
+
+def movement_ships_1(board):
+    print(board)
+    for i, ship_data in enumerate(board):
+        x = board[i][0]
+        y = board[i][1]
+        ship = board[i][2]
+        orientation = board[i][3]
+        
+        if orientation == Orientation.TOP.name:
+            if y == 0: board[i][3] = Orientation.BOTTOM.name
+            else:
+                board[i][1] = y - 1
+            
+        elif orientation == Orientation.BOTTOM.name:
+            if y == game_data["board_rows"] - 1:
+                board[i][3] = Orientation.TOP.name#cambiar orientacion
+            else: board[i][1] = y + 1 #se mue mueve hacia abajo
+                
+        elif orientation == Orientation.LEFT.name:
+            if x == 0:
+                board[i][3] = Orientation.RIGHT.name #cambia orientacion
+            else:
+                board[i][0] = x - 1 #avanzar hacia la izq
+                
+        elif orientation == Orientation.RIGHT.name:
+            if x == game_data["board_columns"] / 2 -1:
+                board[i][3] = Orientation.LEFT.name #cambiar orientacion
+            else:
+                board[i][0] = x + 1 #retrocede hacia la izquierda
+        else: print("ningnuo")
+        
+    print(board)
