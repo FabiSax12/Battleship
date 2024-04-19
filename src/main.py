@@ -146,6 +146,29 @@ def setup_game_screen(game_screen: tk.Tk, ships_complete_img: list, selected_shi
 
     return setup_div, ships_placed_button
 
+def init_game(game_mode: str):
+    global padding_x
+
+    board_columns = game_data["board_columns"]
+    button_width = game_data["button_width"]
+    padding_x = (screen_width // 2) - (button_width * (board_columns // 2 + 0.5))
+
+    game_screen = create_game_screen()
+    generate_board(game_screen, padding_x)
+
+    space_1, space_2, space_3 = create_horizontal_spaces(game_screen)
+    create_player_info_frame(space_1, 0).pack()
+    create_player_info_frame(space_3, 1).pack()
+
+    generate_all_ship_images()
+
+    if game_mode == "old":
+        place_buttons_on_board(game_data["board_1"], padding_x)
+        place_buttons_on_board(game_data["board_2"], padding_x + (game_data["button_width"] * (board_columns // 2 + 1)))
+        
+
+    return game_screen, space_1, space_2, space_3
+
 def start_new_game(window: tk.Tk):
     """
     Initialize a new game with a new game screen.
@@ -156,29 +179,20 @@ def start_new_game(window: tk.Tk):
     Returns:
         None
     """
-    global padding_x
 
     window.destroy()
     window_new_game = create_new_game_screen()
     window_new_game.mainloop()
-
-    board_columns = game_data["board_columns"]
-    button_width = game_data["button_width"]
-    padding_x = (screen_width // 2) - (button_width * (board_columns // 2 + 0.5))
-
-    game_screen = create_game_screen()
-    generate_board(game_screen, padding_x)
+    
+    game_screen, space_1, space_2, space_3 = init_game("new")
     
     selected_ship = tk.StringVar(value=Ship.DESTRUCTOR.name)
     selected_orientation = tk.StringVar(value=Orientation.TOP.name)
     ships_complete_img = []
+    change_board_buttons_command(
+        lambda board, x, y: place_ship_on_board(board, x, y, selected_ship, selected_orientation, create_player_info_frame, (space_1, space_3))
+    )
 
-    space_1, space_2, space_3 = create_horizontal_spaces(game_screen)
-    create_player_info_frame(space_1, 0).pack()
-    create_player_info_frame(space_3, 1).pack()
-
-    generate_all_ship_images()
-    change_board_buttons_command(lambda board, x, y: place_ship_on_board(board, x, y, selected_ship, selected_orientation, create_player_info_frame, (space_1, space_3)))
     setup_div, button = setup_game_screen(space_2, ships_complete_img, selected_ship, selected_orientation)
     setup_div.pack()
     button.bind("<Button-1>", lambda event: change_player_setup_turn(space_2, (space_1, space_3)))
@@ -195,22 +209,10 @@ def start_old_game(file_name: str):
     Returns:
         None
     """
-    global padding_x
     load_game_data(file_name)
 
-    board_columns = game_data["board_columns"]
-    padding_x = (screen_width // 2) - (game_data["button_width"] * (board_columns // 2 + 0.5))
+    game_screen, space_1, space_2, space_3 = init_game("old")
 
-    game_screen = create_game_screen()
-    generate_board(game_screen, padding_x)
-    place_buttons_on_board(game_data["board_1"], padding_x)
-    place_buttons_on_board(game_data["board_2"], padding_x + (game_data["button_width"] * (board_columns // 2 + 1)))
-    generate_all_ship_images()
-
-    space_1, space_2, space_3 = create_horizontal_spaces(game_screen)
-    create_player_info_frame(space_1, 0).pack()
-    create_player_info_frame(space_3, 1).pack()
-    
     if game_data["game_stage"] == GameStage.PLACING_SHIPS:
         selected_ship = tk.StringVar(value=Ship.DESTRUCTOR.name)
         selected_orientation = tk.StringVar(value=Orientation.TOP.name)

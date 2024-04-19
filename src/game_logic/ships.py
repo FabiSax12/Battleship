@@ -2,7 +2,7 @@ import tkinter as tk
 from PIL import ImageTk, Image
 from enums import Orientation, Ship
 from game_data import game_data
-from game_logic.board import clean_board, toggle_board
+from game_logic.board import toggle_board
 
 ships_limit = {
     Ship.DESTRUCTOR: 6,
