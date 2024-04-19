@@ -5,7 +5,7 @@ from enum                       import Enum
 from enums                      import GameStage, Orientation, Ship
 from game_data                  import game_data, load_game_data
 from tk_logic.window_generators import screen_width, screen_height, create_player_info_frame, create_game_screen, create_new_game_screen, create_welcome_screen
-from game_logic.ships           import ships, generate_all_ship_images, place_ship_on_board, print_ship_image, validate_ships_collision, validate_shot
+from game_logic.ships           import ships, generate_all_ship_images, place_ship_on_board, print_ship_image, validate_shot
 from game_logic.board           import clean_board, generate_board, place_buttons_on_board, toggle_board, change_board_buttons_command
 
 # Style
@@ -49,7 +49,7 @@ def create_radio_buttons(window: tk.Tk, ships_complete_img: list, options: Enum,
         )
         radio_button.pack(side=tk.TOP, anchor=tk.W)
 
-def change_player_setup_turn(parent: tk.Widget):
+def change_player_setup_turn(parent: tk.Widget, player_info_frames: tuple):
     """
     Changes the player setup turn and updates the widget's position accordingly.
 
@@ -71,7 +71,7 @@ def change_player_setup_turn(parent: tk.Widget):
         parent.pack_forget()
         
         game_data["game_stage"] = GameStage.PLAYING
-        change_board_buttons_command(lambda board, x, y: validate_shot(x, y, board))
+        change_board_buttons_command(lambda board, x, y: validate_shot(x, y, board, create_player_info_frame, player_info_frames))
 
         for widget in parent.winfo_children():
             widget.destroy()
@@ -173,15 +173,15 @@ def start_new_game(window: tk.Tk):
     selected_orientation = tk.StringVar(value=Orientation.TOP.name)
     ships_complete_img = []
 
-    generate_all_ship_images()
-    change_board_buttons_command(lambda board, x, y: place_ship_on_board(board, x, y, selected_ship, selected_orientation))
-
     space_1, space_2, space_3 = create_horizontal_spaces(game_screen)
     create_player_info_frame(space_1, 0).pack()
     create_player_info_frame(space_3, 1).pack()
+
+    generate_all_ship_images()
+    change_board_buttons_command(lambda board, x, y: place_ship_on_board(board, x, y, selected_ship, selected_orientation, create_player_info_frame, (space_1, space_3)))
     setup_div, button = setup_game_screen(space_2, ships_complete_img, selected_ship, selected_orientation)
     setup_div.pack()
-    button.bind("<Button-1>", lambda event: change_player_setup_turn(space_2))
+    button.bind("<Button-1>", lambda event: change_player_setup_turn(space_2, (space_1, space_3)))
 
     game_screen.mainloop()
 
@@ -217,7 +217,7 @@ def start_old_game(file_name: str):
         ships_complete_img = []
         setup_div, button = setup_game_screen(space_2, ships_complete_img, selected_ship, selected_orientation)
         setup_div.pack()
-        button.bind("<Button-1>", lambda event: change_player_setup_turn(space_2))
+        button.bind("<Button-1>", lambda event: change_player_setup_turn(space_2, (space_1, space_3)))
 
         if game_data["turn"] == 1:
             for ship in game_data["board_1_ships"]:

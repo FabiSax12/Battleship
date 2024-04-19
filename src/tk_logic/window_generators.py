@@ -1,11 +1,8 @@
 import tkinter          as tk
 import tk_logic.custom_widgets as custom
 from tkinter            import messagebox
-from enums              import Ship, Orientation
 from game_data          import find_saved_games, game_data, save_game_data
 from game_logic.config  import set_game_config
-from game_logic.ships   import move_ships, print_ship_image
-from game_logic.board   import clean_board
 
 players = game_data["players"]
 
@@ -182,25 +179,11 @@ def create_game_screen() -> tk.Tk:
     Returns:
         tk.Tk: The main game screen window.
     """
-    
-    def onClick():
-        clean_board(game_data["board_1"])
-        clean_board(game_data["board_2"])
-        move_ships(game_data["board_1_ships"])
-        move_ships(game_data["board_2_ships"])
-        
-        for ship in game_data["board_1_ships"]:
-            print_ship_image(Ship[ship[2]], Orientation[ship[3]], game_data["board_1"], ship[0], ship[1])
-            
-        for ship in game_data["board_2_ships"]:
-            print_ship_image(Ship[ship[2]], Orientation[ship[3]], game_data["board_2"], ship[0], ship[1])
-    
     game_screen = tk.Tk()
     game_screen.title("Battleship")
     game_screen.protocol("WM_DELETE_WINDOW", exit)
     game_screen.state("zoomed")
     custom.Button(game_screen, "Guardar", lambda: create_save_game_screen().mainloop()).place(x=0, y=0)
-    tk.Button(game_screen, text="Mover", command=onClick).place(x=0, y=500)
     
     return game_screen
 

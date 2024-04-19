@@ -2,6 +2,7 @@ import tkinter as tk
 from PIL import ImageTk, Image
 from enums import Orientation, Ship
 from game_data import game_data
+from game_logic.board import clean_board, toggle_board
 
 ships_limit = {
     Ship.DESTRUCTOR: 6,
@@ -103,7 +104,7 @@ def validate_ship_position(x: int, y: int, ship: Ship, orientation: Orientation,
 
     return True
 
-def place_ship_on_board(board_clicked: list[tk.Button], x: int, y: int, selected_ship: tk.StringVar, selected_orientation: tk.StringVar):
+def place_ship_on_board(board_clicked: list[tk.Button], x: int, y: int, selected_ship: tk.StringVar, selected_orientation: tk.StringVar, update_frame, frame_to_update):
     """
     Handles the click event on the game board.
 
@@ -119,6 +120,10 @@ def place_ship_on_board(board_clicked: list[tk.Button], x: int, y: int, selected
             game_data["players"][player]["ships"][Ship[selected_ship.get()].value] += 1
             print_ship_image(Ship[selected_ship.get()], Orientation[selected_orientation.get()], board_clicked, x, y)
             board_ships.append([x, y, selected_ship.get(), selected_orientation.get(), [False for _ in range(len(ships[Ship[selected_ship.get()]]))]])
+
+            for widget in frame_to_update[player].winfo_children():
+                widget.destroy()
+            update_frame(frame_to_update[player], player).pack()
 
 def validate_ships_collision(wanted_x: int, wanted_y: int, placed_ships: list, ship_index: int) -> bool:
     """
@@ -159,9 +164,6 @@ def validate_ships_collision(wanted_x: int, wanted_y: int, placed_ships: list, s
 
     return False
 
-def mark_ship_hit(x: int, y: int, ship: list):
-    pass
-
 def move_ships(placed_ships: list[int, int, str, str]):
     for i, ship_data in enumerate(placed_ships):
 
@@ -200,16 +202,18 @@ def move_ships(placed_ships: list[int, int, str, str]):
             else:
                 placed_ships[i][0] = x + 1
 
-def validate_shot(x: int, y: int, board: list):
+def validate_shot(x: int, y: int, board: list, update_frame, frames_to_update):
     ships_list = game_data["board_1_ships"] if board == game_data["board_1"] else game_data["board_2_ships"]
+
 
     for ship_data in ships_list:
         ship_x = ship_data[0]
         ship_y = ship_data[1]
         ship = Ship[ship_data[2]]
         orientation = Orientation[ship_data[3]]
+        ship_lenght = len(ships[ship])
 
-        for i in range(len(ships[ship])):
+        for i in range(ship_lenght):
             moved_x = ship_x
             moved_y = ship_y
 
@@ -219,14 +223,21 @@ def validate_shot(x: int, y: int, board: list):
             elif orientation == Orientation.RIGHT:  moved_x -= i
 
             if moved_x == x and moved_y == y:
+                frame = frames_to_update[0 if board == game_data["board_1"] else 1]
                 ship_data[4][i] = True
-                mark_ship_hit(x, y, ship_data)
                 board[y][x].config(background="red")
+
+                x = x if board == game_data["board_1"] else x + game_data["board_columns"] // 2
                 game_data["buttons_hit"].append([x, y])
-                return True
-            
-            if ship_data[4].count(True) == len(ships[ship]):
-                board[y][x].config(background="red")
-                game_data["buttons_hit"].append([x, y])
-                return True
+
+                if ship_data[4].count(False) == 0:
+                    game_data["players"][0 if board == game_data["board_1"] else 1]["ships"][ship.value] -= 1
+                    for widget in frame.winfo_children():
+                        widget.destroy()
+                    update_frame(frame, 0 if board == game_data["board_1"] else 1).pack()
+
+    move_ships(game_data["board_1_ships"])
+    move_ships(game_data["board_2_ships"])
+    toggle_board()
+    game_data["turn"] = 2 if game_data["turn"] == 1 else 1
 

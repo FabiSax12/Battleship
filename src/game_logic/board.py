@@ -1,7 +1,6 @@
 import tkinter as tk
 from game_data import game_data
 
-
 def place_buttons_on_board(board: list, placement_x: int = None, padding_x: int = 0, padding_y: int = 50):
     """
     Position the buttons on the game screen based on the provided board and placement coordinates.
@@ -32,12 +31,12 @@ def toggle_board():
     """
     Toggles the state of all buttons on both boards.
     """
-    for row in board_1:
+    for row in game_data["board_1"]:
         for btn in row:
             state = btn["state"]
             btn.config(state="normal" if state == "disabled" else "disabled")
 
-    for row in board_2:
+    for row in game_data["board_2"]:
         for btn in row:
             state = btn["state"]
             btn.config(state="normal" if state == "disabled" else "disabled")
@@ -90,7 +89,7 @@ def generate_board(window: tk.Tk, padding_x: int = 0):
     game_data["board_2"] = board_2
 
     # Toggle the board for the current player's turn
-    toggle_board()
+    if game_data["turn"] == 1: toggle_board()
 
     # Place buttons on the game screen for each board
     place_buttons_on_board(board_1, padding_x)
