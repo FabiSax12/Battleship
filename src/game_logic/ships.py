@@ -202,9 +202,8 @@ def move_ships(placed_ships: list[int, int, str, str]):
             else:
                 placed_ships[i][0] = x + 1
 
-def validate_shot(x: int, y: int, board: list, update_frame, frames_to_update):
+def validate_shot(x: int, y: int, board: list, update_frame: callable, frames_to_update: tuple[tk.Widget], update_console: callable):
     ships_list = game_data["board_1_ships"] if board == game_data["board_1"] else game_data["board_2_ships"]
-
 
     for ship_data in ships_list:
         ship_x = ship_data[0]
@@ -223,7 +222,7 @@ def validate_shot(x: int, y: int, board: list, update_frame, frames_to_update):
             elif orientation == Orientation.RIGHT:  moved_x -= i
 
             if moved_x == x and moved_y == y:
-                frame = frames_to_update[0 if board == game_data["board_1"] else 1]
+                frame = frames_to_update[0 if board == game_data["board_1"] else 2]
                 ship_data[4][i] = True
                 board[y][x].config(background="red")
 
@@ -235,9 +234,18 @@ def validate_shot(x: int, y: int, board: list, update_frame, frames_to_update):
                     for widget in frame.winfo_children():
                         widget.destroy()
                     update_frame(frame, 0 if board == game_data["board_1"] else 1).pack()
-
-    move_ships(game_data["board_1_ships"])
-    move_ships(game_data["board_2_ships"])
+    
     toggle_board()
-    game_data["turn"] = 2 if game_data["turn"] == 1 else 1
 
+    if game_data["turn"] == 1:
+        game_data["turn"] = 2
+        player_nickname = game_data["players"][1]["nickname"]
+        update_console(f"¡{player_nickname}, es tu turno!")
+    else:
+        move_ships(game_data["board_1_ships"])
+        move_ships(game_data["board_2_ships"])
+
+        game_data["turn"] = 1
+        player_nickname = game_data["players"][0]["nickname"]
+        update_console(f"¡{player_nickname}, es tu turno!")
+    

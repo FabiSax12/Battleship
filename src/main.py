@@ -1,5 +1,6 @@
 import tkinter                  as tk
 import tk_logic.custom_widgets  as custom
+from tkinter                    import scrolledtext
 from PIL                        import ImageTk, Image
 from enum                       import Enum
 from enums                      import GameStage, Orientation, Ship
@@ -49,7 +50,13 @@ def create_radio_buttons(window: tk.Tk, ships_complete_img: list, options: Enum,
         )
         radio_button.pack(side=tk.TOP, anchor=tk.W)
 
-def change_player_setup_turn(parent: tk.Widget, player_info_frames: tuple):
+def update_console(console: tk.Widget, message: str):
+    console.config(state=tk.NORMAL)
+    console.insert(tk.END, message + "\n")
+    console.see(tk.END)
+    console.config(state=tk.DISABLED)
+
+def change_player_setup_turn(parent: tk.Widget, space_1: tk.Widget, space_3: tk.Widget):
     """
     Changes the player setup turn and updates the widget's position accordingly.
 
@@ -70,13 +77,19 @@ def change_player_setup_turn(parent: tk.Widget, player_info_frames: tuple):
         clean_board(board)
         parent.pack_forget()
         
-        game_data["game_stage"] = GameStage.PLAYING
-        change_board_buttons_command(lambda board, x, y: validate_shot(x, y, board, create_player_info_frame, player_info_frames))
-
         for widget in parent.winfo_children():
             widget.destroy()
 
-        tk.Label(parent, text="¡Es tu turno!").pack()
+        game_data["game_stage"] = GameStage.PLAYING
+        game_data["turn"] = 1
+        
+        player_nickname = game_data["players"][0]["nickname"]
+
+        console = scrolledtext.ScrolledText(parent, wrap=tk.WORD, font=("Times New Roman", 14))
+        console.pack()
+        change_board_buttons_command(lambda board, x, y: validate_shot(x, y, board, create_player_info_frame, (space_1, parent, space_3), lambda msj: update_console(console, msj)))
+        update_console(console, "¡Que comience la batalla!")
+        update_console(console, f"Turno de {player_nickname}")
 
 def create_horizontal_spaces(window):
     # Obtener el ancho y la altura de la ventana
@@ -195,7 +208,7 @@ def start_new_game(window: tk.Tk):
 
     setup_div, button = setup_game_screen(space_2, ships_complete_img, selected_ship, selected_orientation)
     setup_div.pack()
-    button.bind("<Button-1>", lambda event: change_player_setup_turn(space_2, (space_1, space_3)))
+    button.bind("<Button-1>", lambda event: change_player_setup_turn(space_2, space_1, space_3))
 
     game_screen.mainloop()
 
@@ -219,7 +232,7 @@ def start_old_game(file_name: str):
         ships_complete_img = []
         setup_div, button = setup_game_screen(space_2, ships_complete_img, selected_ship, selected_orientation)
         setup_div.pack()
-        button.bind("<Button-1>", lambda event: change_player_setup_turn(space_2, (space_1, space_3)))
+        button.bind("<Button-1>", lambda event: change_player_setup_turn(space_2, space_1, space_3))
 
         if game_data["turn"] == 1:
             for ship in game_data["board_1_ships"]:
