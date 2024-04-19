@@ -1,14 +1,11 @@
-from cmath import e
 import tkinter                  as tk
-
 import tk_logic.custom_widgets  as custom
-from tkinter.font               import Font
 from PIL                        import ImageTk, Image
 from enum                       import Enum
 from enums                      import GameStage, Orientation, Ship
 from game_data                  import game_data, load_game_data
-from tk_logic.window_generators import create_player_info_frame, screen_width, create_game_screen, create_new_game_screen, create_welcome_screen, screen_height
-from game_logic.ships           import ships, generate_all_ship_images, place_ship_on_board, print_ship_image
+from tk_logic.window_generators import screen_width, screen_height, create_player_info_frame, create_game_screen, create_new_game_screen, create_welcome_screen
+from game_logic.ships           import ships, generate_all_ship_images, place_ship_on_board, print_ship_image, validate_ships_collision, validate_shot
 from game_logic.board           import clean_board, generate_board, place_buttons_on_board, toggle_board, change_board_buttons_command
 
 # Style
@@ -66,29 +63,25 @@ def change_player_setup_turn(parent: tk.Widget):
     board = game_data["board_1"] if turn == 1 else game_data["board_2"]
 
     if turn == 1:
-        turn = 2
-        toggle_board()
         clean_board(board)
+        toggle_board()
+        game_data["turn"] = 2
     else:
         clean_board(board)
         parent.pack_forget()
+        
         game_data["game_stage"] = GameStage.PLAYING
-        change_board_buttons_command(lambda board, x, y: print("BOOM"))
+        change_board_buttons_command(lambda board, x, y: validate_shot(x, y, board))
 
         for widget in parent.winfo_children():
             widget.destroy()
 
         tk.Label(parent, text="¡Es tu turno!").pack()
-        
-def start_screen_game():
-    #LOGICA PARA INICIAR NUEVA PANTALLA
-    print("si")
 
 def create_horizontal_spaces(window):
     # Obtener el ancho y la altura de la ventana
     window_width = screen_width
     window_height = screen_height
-    print(window_width, window_height)
 
     # Calcular el ancho de cada espacio horizontal
     space_width = window_width / 3 - window_width * (0.2 / 3)
@@ -148,11 +141,7 @@ def setup_game_screen(game_screen: tk.Tk, ships_complete_img: list, selected_shi
     ships_placed_container = tk.Frame(setup_div)
     ships_placed_container.pack()
 
-    ships_placed_button = custom.Button(
-        ships_placed_container, 
-        "Guardar posiciones",
-        lambda: change_player_setup_turn(setup_div)
-    )
+    ships_placed_button = custom.Button(ships_placed_container, "Guardar posiciones")
     ships_placed_button.pack(side=tk.TOP, pady=30)
 
     return setup_div, ships_placed_button
@@ -178,18 +167,21 @@ def start_new_game(window: tk.Tk):
     padding_x = (screen_width // 2) - (button_width * (board_columns // 2 + 0.5))
 
     game_screen = create_game_screen()
+    generate_board(game_screen, padding_x)
+    
     selected_ship = tk.StringVar(value=Ship.DESTRUCTOR.name)
     selected_orientation = tk.StringVar(value=Orientation.TOP.name)
     ships_complete_img = []
 
     generate_all_ship_images()
-    generate_board(game_screen, padding_x)
     change_board_buttons_command(lambda board, x, y: place_ship_on_board(board, x, y, selected_ship, selected_orientation))
 
     space_1, space_2, space_3 = create_horizontal_spaces(game_screen)
     create_player_info_frame(space_1, 0).pack()
     create_player_info_frame(space_3, 1).pack()
-    setup_game_screen(space_2, ships_complete_img, selected_ship, selected_orientation)
+    setup_div, button = setup_game_screen(space_2, ships_complete_img, selected_ship, selected_orientation)
+    setup_div.pack()
+    button.bind("<Button-1>", lambda event: change_player_setup_turn(space_2))
 
     game_screen.mainloop()
 
@@ -213,13 +205,13 @@ def start_old_game(file_name: str):
     generate_board(game_screen, padding_x)
     place_buttons_on_board(game_data["board_1"], padding_x)
     place_buttons_on_board(game_data["board_2"], padding_x + (game_data["button_width"] * (board_columns // 2 + 1)))
+    generate_all_ship_images()
 
     space_1, space_2, space_3 = create_horizontal_spaces(game_screen)
     create_player_info_frame(space_1, 0).pack()
     create_player_info_frame(space_3, 1).pack()
     
     if game_data["game_stage"] == GameStage.PLACING_SHIPS:
-        generate_all_ship_images()
         selected_ship = tk.StringVar(value=Ship.DESTRUCTOR.name)
         selected_orientation = tk.StringVar(value=Orientation.TOP.name)
         ships_complete_img = []
@@ -230,13 +222,14 @@ def start_old_game(file_name: str):
         if game_data["turn"] == 1:
             for ship in game_data["board_1_ships"]:
                 print_ship_image(Ship[ship[2]], Orientation[ship[3]], game_data["board_1"], ship[0], ship[1])
+
         elif game_data["turn"] == 2:
             toggle_board()
             for ship in game_data["board_2_ships"]:
                 print_ship_image(Ship[ship[2]], Orientation[ship[3]], game_data["board_2"], ship[0], ship[1])
 
-    change_board_buttons_command(lambda board, x, y: place_ship_on_board(board, x, y, selected_ship, selected_orientation))
-
+        change_board_buttons_command(lambda board, x, y: place_ship_on_board(board, x, y, selected_ship, selected_orientation))
+        
     game_screen.mainloop()
 
 def main():

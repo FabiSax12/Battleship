@@ -43,7 +43,6 @@ def toggle_board():
             btn.config(state="normal" if state == "disabled" else "disabled")
             
 def clean_board(board):
-    print("borrando")
     for row in board:
         for button in row:
             button.config(image = '')
@@ -70,7 +69,7 @@ def generate_board(window: tk.Tk, padding_x: int = 0):
                 window,
                 command=None, 
                 state="disabled" if col < board_columns // 2 else "normal",
-                background="lightBlue", 
+                background="red" if game_data["buttons_hit"].count([col , row]) else "lightBlue",
                 activebackground="lightBlue",
                 borderwidth=1,
                 relief="solid",

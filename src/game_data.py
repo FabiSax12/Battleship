@@ -14,6 +14,7 @@ game_data = {
     "saved_games": [],
     "turn": 1,
     "game_stage": GameStage.PLACING_SHIPS,
+    "buttons_hit": [[], []] # [[x, y], [x, y]]
 }
 
 documents_path = os.path.join(os.getenv("HOME" if os.name == "posix" else "USERPROFILE"), "Documents")

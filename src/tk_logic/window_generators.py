@@ -4,7 +4,7 @@ from tkinter            import messagebox
 from enums              import Ship, Orientation
 from game_data          import find_saved_games, game_data, save_game_data
 from game_logic.config  import set_game_config
-from game_logic.ships   import movement_ships_1, place_ship_on_board, print_ship_image
+from game_logic.ships   import move_ships, print_ship_image
 from game_logic.board   import clean_board
 
 players = game_data["players"]
@@ -186,8 +186,8 @@ def create_game_screen() -> tk.Tk:
     def onClick():
         clean_board(game_data["board_1"])
         clean_board(game_data["board_2"])
-        movement_ships_1(game_data["board_1_ships"])
-        movement_ships_1(game_data["board_2_ships"])
+        move_ships(game_data["board_1_ships"])
+        move_ships(game_data["board_2_ships"])
         
         for ship in game_data["board_1_ships"]:
             print_ship_image(Ship[ship[2]], Orientation[ship[3]], game_data["board_1"], ship[0], ship[1])
