@@ -1,4 +1,7 @@
 import tkinter          as tk
+from enums import Color, Orientation, Ship
+from game_logic.board import clean_board
+from game_logic.ships import print_ship_image
 import tk_logic.custom_widgets as custom
 from tkinter            import messagebox
 from game_data          import find_saved_games, game_data, save_game_data
@@ -55,6 +58,8 @@ def center_widget(widget: tk.Widget, window_width: int, window_height: int, x=No
 
 def create_player_info_frame(window: tk.Tk, player: int):
     player_info = game_data["players"][player]
+    player_ships = game_data["board_1_ships" if player == 0 else "board_2_ships"]
+    board = game_data["board_1" if player == 0 else "board_2"]
 
     player_info_frame = custom.Div(window)
     player_info_frame.title(player_info["nickname"])
@@ -71,6 +76,25 @@ def create_player_info_frame(window: tk.Tk, player: int):
 
     acorazado_label = custom.Label(player_info_frame, text=f"Acorazados: {player_info['ships']['acorazado']}")
     acorazado_label.pack(anchor="w")
+
+    def hide_all_ships():
+        show_ships_button.config(text="Mostrar barcos", command=print_all_ships, bg=Color.BLACK.value)
+        clean_board(board)
+
+
+    def print_all_ships():
+        show_ships_button.config(text="Ocultar barcos", command=hide_all_ships, bg=Color.GRAY.value)
+
+        for ship_info in player_ships:
+            x = ship_info[0]
+            y = ship_info[1]
+            ship = ship_info[2]
+            orientation = ship_info[3]
+            
+            print_ship_image(Ship[ship], Orientation[orientation], board, x, y)
+
+    show_ships_button = custom.Button(player_info_frame, "Mostrar barcos", print_all_ships)
+    show_ships_button.pack(anchor="w")
 
     player_info_frame.place(x=0, y=0)
 

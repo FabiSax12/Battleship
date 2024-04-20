@@ -4,7 +4,7 @@ from turtle import up
 from PIL import ImageTk, Image
 from enums import Color, GameStage, Orientation, Ship
 from game_data import game_data
-from game_logic.board import toggle_board
+from game_logic.board import clean_board, toggle_board
 
 ships_limit = {
     Ship.DESTRUCTOR: 6,
@@ -207,6 +207,7 @@ def move_ships(placed_ships: list[int, int, str, str]):
 def validate_shot(x: int, y: int, board: list, update_frame: callable, frames_to_update: tuple[tk.Widget], update_console: callable):
     ship_hit = False
     ships_list = game_data["board_1_ships"] if board == game_data["board_1"] else game_data["board_2_ships"]
+    # clean_board(game_data["board_1" if board == game_data["board_2"] else "board_2"])
 
     player_idx = game_data["turn"] - 1
     oponent_idx = 0 if player_idx == 1 else 1
@@ -249,6 +250,8 @@ def validate_shot(x: int, y: int, board: list, update_frame: callable, frames_to
                     for widget in frames_to_update[2].winfo_children(): widget.destroy()
                     update_frame(frames_to_update[0], 0).pack()
                     update_frame(frames_to_update[2], 1).pack()
+                    clean_board(game_data["board_1"])
+                    clean_board(game_data["board_2"])
                     update_console(f"¡{player["nickname"]} ha hundido un {ship.name}!")
 
     if not ship_hit:

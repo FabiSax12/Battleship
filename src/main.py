@@ -234,6 +234,7 @@ def start_old_game(file_name: str):
         setup_div.pack()
         button.bind("<Button-1>", lambda event: change_player_setup_turn(space_2, space_1, space_3))
 
+
         if game_data["turn"] == 1:
             for ship in game_data["board_1_ships"]:
                 print_ship_image(Ship[ship[2]], Orientation[ship[3]], game_data["board_1"], ship[0], ship[1])
