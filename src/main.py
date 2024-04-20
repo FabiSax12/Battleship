@@ -239,12 +239,18 @@ def start_old_game(file_name: str):
                 print_ship_image(Ship[ship[2]], Orientation[ship[3]], game_data["board_1"], ship[0], ship[1])
 
         elif game_data["turn"] == 2:
-            toggle_board()
             for ship in game_data["board_2_ships"]:
                 print_ship_image(Ship[ship[2]], Orientation[ship[3]], game_data["board_2"], ship[0], ship[1])
 
-        change_board_buttons_command(lambda board, x, y: place_ship_on_board(board, x, y, selected_ship, selected_orientation))
-        
+        change_board_buttons_command(lambda board, x, y: place_ship_on_board(board, x, y, selected_ship, selected_orientation, create_player_info_frame, (space_1, space_3)))
+    elif game_data["game_stage"] == GameStage.PLAYING:
+        toggle_board()
+        console = scrolledtext.ScrolledText(space_2, wrap=tk.WORD, font=("Times New Roman", 14))
+        console.pack()
+        change_board_buttons_command(lambda board, x, y: validate_shot(x, y, board, create_player_info_frame, (space_1, space_2, space_3), lambda msj: update_console(console, msj)))
+        update_console(console, "¡La batalla debe continuar!")
+        update_console(console, f"Turno de {game_data["players"][game_data["turn"] - 1]["nickname"]}")
+
     game_screen.mainloop()
 
 def main():

@@ -1,6 +1,8 @@
+import time
 import tkinter as tk
+from turtle import up
 from PIL import ImageTk, Image
-from enums import Orientation, Ship
+from enums import Color, GameStage, Orientation, Ship
 from game_data import game_data
 from game_logic.board import toggle_board
 
@@ -167,7 +169,7 @@ def validate_ships_collision(wanted_x: int, wanted_y: int, placed_ships: list, s
 def move_ships(placed_ships: list[int, int, str, str]):
     for i, ship_data in enumerate(placed_ships):
 
-        if ship_data[4].count(True) >= 1: continue # If the ship has been hit, don't move it
+        if ship_data[4].count(True) >= 1: continue # If the ship has been hit, don"t move it
 
         x = placed_ships[i][0]
         y = placed_ships[i][1]
@@ -203,7 +205,13 @@ def move_ships(placed_ships: list[int, int, str, str]):
                 placed_ships[i][0] = x + 1
 
 def validate_shot(x: int, y: int, board: list, update_frame: callable, frames_to_update: tuple[tk.Widget], update_console: callable):
+    ship_hit = False
     ships_list = game_data["board_1_ships"] if board == game_data["board_1"] else game_data["board_2_ships"]
+
+    player_idx = game_data["turn"] - 1
+    oponent_idx = 0 if player_idx == 1 else 1
+    player = game_data["players"][player_idx]
+    oponent = game_data["players"][oponent_idx]
 
     for ship_data in ships_list:
         ship_x = ship_data[0]
@@ -221,31 +229,51 @@ def validate_shot(x: int, y: int, board: list, update_frame: callable, frames_to
             elif orientation == Orientation.LEFT:   moved_x += i
             elif orientation == Orientation.RIGHT:  moved_x -= i
 
+            # If the shot hits a ship
             if moved_x == x and moved_y == y:
-                frame = frames_to_update[0 if board == game_data["board_1"] else 2]
+                ship_hit = True
                 ship_data[4][i] = True
-                board[y][x].config(background="red")
+                board[y][x].config(background=Color.RED.value)
 
                 x = x if board == game_data["board_1"] else x + game_data["board_columns"] // 2
                 game_data["buttons_hit"].append([x, y])
 
+                update_console(f"¡{player["nickname"]}, que puntería!")
+
                 if ship_data[4].count(False) == 0:
-                    game_data["players"][0 if board == game_data["board_1"] else 1]["ships"][ship.value] -= 1
-                    for widget in frame.winfo_children():
-                        widget.destroy()
-                    update_frame(frame, 0 if board == game_data["board_1"] else 1).pack()
-    
-    toggle_board()
+                    game_data["players"][oponent_idx]["ships"][ship.value] -= 1
+                    game_data["players"][player_idx]["points"] += len(ships[ship])
 
-    if game_data["turn"] == 1:
-        game_data["turn"] = 2
-        player_nickname = game_data["players"][1]["nickname"]
-        update_console(f"¡{player_nickname}, es tu turno!")
+                    # Update the horizontal panel of the info
+                    for widget in frames_to_update[0].winfo_children(): widget.destroy()
+                    for widget in frames_to_update[2].winfo_children(): widget.destroy()
+                    update_frame(frames_to_update[0], 0).pack()
+                    update_frame(frames_to_update[2], 1).pack()
+                    update_console(f"¡{player["nickname"]} ha hundido un {ship.name}!")
+
+    if not ship_hit:
+        update_console("¡Vaya!, eso estuvo cerca...")
+
+        if game_data["players"][oponent_idx]["points"] == sum([ships_limit[ship] * len(ships[ship]) for ship in Ship]):
+            update_console(f"¡{game_data["players"][oponent_idx]["nickname"]} ha ganado!")
+            game_data["game_stage"] = GameStage.END
+
+    if game_data["game_stage"] == GameStage.END:
+        for row in board:
+            for btn in row:
+                btn.config(state="disabled")
     else:
-        move_ships(game_data["board_1_ships"])
-        move_ships(game_data["board_2_ships"])
+        toggle_board()
 
-        game_data["turn"] = 1
-        player_nickname = game_data["players"][0]["nickname"]
-        update_console(f"¡{player_nickname}, es tu turno!")
+        if game_data["turn"] == 1:
+            game_data["turn"] = 2
+            player_nickname = game_data["players"][1]["nickname"]
+            update_console(f"¡{player_nickname}, es tu turno!")
+        else:
+            move_ships(game_data["board_1_ships"])
+            move_ships(game_data["board_2_ships"])
+
+            game_data["turn"] = 1
+            player_nickname = game_data["players"][0]["nickname"]
+            update_console(f"¡{player_nickname}, es tu turno!")
     

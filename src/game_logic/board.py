@@ -1,4 +1,5 @@
 import tkinter as tk
+from enums import Color
 from game_data import game_data
 
 def place_buttons_on_board(board: list, placement_x: int = None, padding_x: int = 0, padding_y: int = 50):
@@ -34,12 +35,18 @@ def toggle_board():
     for row in game_data["board_1"]:
         for btn in row:
             state = btn["state"]
-            btn.config(state="normal" if state == "disabled" else "disabled")
+            if btn.cget("background") == Color.RED.value:
+                btn.config(state="disabled")
+            else:
+                btn.config(state="normal" if state == "disabled" else "disabled")
 
     for row in game_data["board_2"]:
         for btn in row:
             state = btn["state"]
-            btn.config(state="normal" if state == "disabled" else "disabled")
+            if btn.cget("background") == Color.RED.value:
+                btn.config(state="disabled")
+            else:
+                btn.config(state="normal" if state == "disabled" else "disabled")
             
 def clean_board(board):
     for row in board:
@@ -68,7 +75,7 @@ def generate_board(window: tk.Tk, padding_x: int = 0):
                 window,
                 command=None, 
                 state="disabled" if col < board_columns // 2 else "normal",
-                background="red" if game_data["buttons_hit"].count([col , row]) else "lightBlue",
+                background=Color.RED.value if game_data["buttons_hit"].count([col , row]) else Color.BLUE.value,
                 activebackground="lightBlue",
                 borderwidth=1,
                 relief="solid",
