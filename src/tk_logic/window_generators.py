@@ -1,11 +1,10 @@
-import tkinter          as tk
-from enums import Color, Orientation, Ship
-from game_logic.board import clean_board
-from game_logic.ships import print_ship_image
-import tk_logic.custom_widgets as custom
-from tkinter            import messagebox
-from game_data          import find_saved_games, game_data, save_game_data
-from game_logic.config  import set_game_config
+import tkinter                  as tk
+import tk_logic.custom_widgets  as custom
+from enums                      import Color, GameStage, Orientation, Ship
+from game_logic.board           import clean_board
+from game_logic.ships           import print_all_ships, print_ship_image
+from game_data                  import game_data, find_saved_games, save_game_data
+from game_logic.config          import set_game_config
 
 players = game_data["players"]
 
@@ -77,28 +76,43 @@ def create_player_info_frame(window: tk.Tk, player: int):
     acorazado_label = custom.Label(player_info_frame, text=f"Acorazados: {player_info['ships']['acorazado']}")
     acorazado_label.pack(anchor="w")
 
-    def hide_all_ships():
-        show_ships_button.config(text="Mostrar barcos", command=print_all_ships, bg=Color.BLACK.value)
+    def hide():
+        show_ships_button.config(text="Mostrar barcos", command=show, bg=Color.BLACK.value)
         clean_board(board)
 
 
-    def print_all_ships():
-        show_ships_button.config(text="Ocultar barcos", command=hide_all_ships, bg=Color.GRAY.value)
+    def show():
+        show_ships_button.config(text="Ocultar barcos", command=hide, bg=Color.GRAY.value)
+        print_all_ships(player_ships, board)
 
-        for ship_info in player_ships:
-            x = ship_info[0]
-            y = ship_info[1]
-            ship = ship_info[2]
-            orientation = ship_info[3]
-            
-            print_ship_image(Ship[ship], Orientation[orientation], board, x, y)
+    show_ships_button = custom.Button(player_info_frame, "Mostrar barcos", show)
 
-    show_ships_button = custom.Button(player_info_frame, "Mostrar barcos", print_all_ships)
-    show_ships_button.pack(anchor="w")
+    if game_data["game_stage"] == GameStage.PLAYING:
+        show_ships_button.config(state=tk.NORMAL if player + 1 == game_data["turn"] else tk.DISABLED)
+        show_ships_button.pack(side=tk.BOTTOM, pady=10, expand=True, fill=tk.X)
 
     player_info_frame.place(x=0, y=0)
 
     return player_info_frame
+
+def update_player_info_frame(player_info_frame, player: int):
+    player_info = game_data["players"][player]
+    frame_children = player_info_frame.winfo_children()[0].winfo_children()
+
+    points_label = frame_children[1]
+    destructor_label = frame_children[2]
+    crucero_label = frame_children[3]
+    acorazado_label = frame_children[4]
+    button = frame_children[5]
+
+    points_label.config(text=f"Puntos: {player_info['points']}")
+    destructor_label.config(text=f"Destructores: {player_info['ships']['destructor']}")
+    crucero_label.config(text=f"Cruceros: {player_info['ships']['crucero']}")
+    acorazado_label.config(text=f"Acorazados: {player_info['ships']['acorazado']}")
+
+    if game_data["game_stage"] == GameStage.PLAYING:
+        button.config(state=tk.NORMAL if player + 1 == game_data["turn"] else tk.DISABLED)
+        button.pack(side=tk.BOTTOM, pady=10, expand=True, fill=tk.X)
 
 def list_of_saved_games(parent_window, title, action) -> custom.Div:
     """

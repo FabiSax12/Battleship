@@ -1,10 +1,7 @@
-import time
-import tkinter as tk
-from turtle import up
-from PIL import ImageTk, Image
-from enums import Color, GameStage, Orientation, Ship
-from game_data import game_data
-from game_logic.board import clean_board, toggle_board
+import tkinter          as tk
+from PIL                import ImageTk, Image
+from enums              import Orientation, Ship
+from game_data          import game_data
 
 ships_limit = {
     Ship.DESTRUCTOR: 6,
@@ -74,6 +71,15 @@ def print_ship_image(ship: Ship, orientation: Orientation, board: list, x: int, 
             button: tk.Button = board[moved_y][moved_x]
             button.config(image=ships_Tkinter_images[ship][orientation][i])
 
+def print_all_ships(player_ships: list, board: list):
+    for ship_info in player_ships:
+        x = ship_info[0]
+        y = ship_info[1]
+        ship = ship_info[2]
+        orientation = ship_info[3]
+        
+        print_ship_image(Ship[ship], Orientation[orientation], board, x, y)
+
 def validate_ship_position(x: int, y: int, ship: Ship, orientation: Orientation, board: list):
     """
     Validates the position of a ship on the game board.
@@ -122,10 +128,7 @@ def place_ship_on_board(board_clicked: list[tk.Button], x: int, y: int, selected
             game_data["players"][player]["ships"][Ship[selected_ship.get()].value] += 1
             print_ship_image(Ship[selected_ship.get()], Orientation[selected_orientation.get()], board_clicked, x, y)
             board_ships.append([x, y, selected_ship.get(), selected_orientation.get(), [False for _ in range(len(ships[Ship[selected_ship.get()]]))]])
-
-            for widget in frame_to_update[player].winfo_children():
-                widget.destroy()
-            update_frame(frame_to_update[player], player).pack()
+            update_frame(frame_to_update[player], player)
 
 def validate_ships_collision(wanted_x: int, wanted_y: int, placed_ships: list, ship_index: int) -> bool:
     """
@@ -203,80 +206,3 @@ def move_ships(placed_ships: list[int, int, str, str]):
                 placed_ships[i][0] = x - (len(ships[Ship[ship]]) - 1) if x - (len(ships[Ship[ship]]) - 1) >= 0 else x
             else:
                 placed_ships[i][0] = x + 1
-
-def validate_shot(x: int, y: int, board: list, update_frame: callable, frames_to_update: tuple[tk.Widget], update_console: callable):
-    ship_hit = False
-    ships_list = game_data["board_1_ships"] if board == game_data["board_1"] else game_data["board_2_ships"]
-    # clean_board(game_data["board_1" if board == game_data["board_2"] else "board_2"])
-
-    player_idx = game_data["turn"] - 1
-    oponent_idx = 0 if player_idx == 1 else 1
-    player = game_data["players"][player_idx]
-    oponent = game_data["players"][oponent_idx]
-
-    for ship_data in ships_list:
-        ship_x = ship_data[0]
-        ship_y = ship_data[1]
-        ship = Ship[ship_data[2]]
-        orientation = Orientation[ship_data[3]]
-        ship_lenght = len(ships[ship])
-
-        for i in range(ship_lenght):
-            moved_x = ship_x
-            moved_y = ship_y
-
-            if orientation == Orientation.TOP:      moved_y += i
-            elif orientation == Orientation.BOTTOM: moved_y -= i
-            elif orientation == Orientation.LEFT:   moved_x += i
-            elif orientation == Orientation.RIGHT:  moved_x -= i
-
-            # If the shot hits a ship
-            if moved_x == x and moved_y == y:
-                ship_hit = True
-                ship_data[4][i] = True
-                board[y][x].config(background=Color.RED.value)
-
-                x = x if board == game_data["board_1"] else x + game_data["board_columns"] // 2
-                game_data["buttons_hit"].append([x, y])
-
-                update_console(f"¡{player["nickname"]}, que puntería!")
-
-                if ship_data[4].count(False) == 0:
-                    game_data["players"][oponent_idx]["ships"][ship.value] -= 1
-                    game_data["players"][player_idx]["points"] += len(ships[ship])
-
-                    # Update the horizontal panel of the info
-                    for widget in frames_to_update[0].winfo_children(): widget.destroy()
-                    for widget in frames_to_update[2].winfo_children(): widget.destroy()
-                    update_frame(frames_to_update[0], 0).pack()
-                    update_frame(frames_to_update[2], 1).pack()
-                    clean_board(game_data["board_1"])
-                    clean_board(game_data["board_2"])
-                    update_console(f"¡{player["nickname"]} ha hundido un {ship.name}!")
-
-    if not ship_hit:
-        update_console("¡Vaya!, eso estuvo cerca...")
-
-        if game_data["players"][oponent_idx]["points"] == sum([ships_limit[ship] * len(ships[ship]) for ship in Ship]):
-            update_console(f"¡{game_data["players"][oponent_idx]["nickname"]} ha ganado!")
-            game_data["game_stage"] = GameStage.END
-
-    if game_data["game_stage"] == GameStage.END:
-        for row in board:
-            for btn in row:
-                btn.config(state="disabled")
-    else:
-        toggle_board()
-
-        if game_data["turn"] == 1:
-            game_data["turn"] = 2
-            player_nickname = game_data["players"][1]["nickname"]
-            update_console(f"¡{player_nickname}, es tu turno!")
-        else:
-            move_ships(game_data["board_1_ships"])
-            move_ships(game_data["board_2_ships"])
-
-            game_data["turn"] = 1
-            player_nickname = game_data["players"][0]["nickname"]
-            update_console(f"¡{player_nickname}, es tu turno!")
-    

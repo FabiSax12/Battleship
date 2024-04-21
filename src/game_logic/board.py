@@ -1,6 +1,7 @@
 import tkinter as tk
-from enums import Color
+from enums import Color, Orientation, Ship
 from game_data import game_data
+from game_logic.ships import ships
 
 def place_buttons_on_board(board: list, placement_x: int = None, padding_x: int = 0, padding_y: int = 50):
     """
@@ -49,9 +50,29 @@ def toggle_board():
                 btn.config(state="normal" if state == "disabled" else "disabled")
             
 def clean_board(board):
-    for row in board:
-        for button in row:
-            button.config(image = '')
+    ships_list = game_data["board_1_ships"] if board == game_data["board_1"] else game_data["board_2_ships"]
+
+    for y, row in enumerate(board):
+        for x, button in enumerate(row):
+            if button.cget("background") == Color.RED.value:
+                
+                for ship_data in ships_list:
+                    orientation = Orientation[ship_data[3]]
+                    ship_lenght = len(ships[Ship[ship_data[2]]])
+
+                    for i in range(ship_lenght):
+                        moved_x = ship_data[0]
+                        moved_y = ship_data[1]
+
+                        if orientation == Orientation.TOP:      moved_y += i
+                        elif orientation == Orientation.BOTTOM: moved_y -= i
+                        elif orientation == Orientation.LEFT:   moved_x += i
+                        elif orientation == Orientation.RIGHT:  moved_x -= i
+
+                        if moved_x == x and moved_y == y and ship_data[4].count(False) > 0:
+                            button.config(image="")
+            else:
+                button.config(image="")
             
 def generate_board(window: tk.Tk, padding_x: int = 0):
     """
