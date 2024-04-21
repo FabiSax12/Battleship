@@ -34,7 +34,7 @@ def create_radio_buttons(window: tk.Tk, ships_complete_img: list, options: Enum,
     container.pack()
 
     for i, option in enumerate(options):
-        image = Image.open(f"src/images/{option.value}.png")
+        image = Image.open(f"images/{option.value}.png")
         [image_width, image_height] = image.size
         image = image.resize((image_width // 5, image_height // 5))
         photo_image = ImageTk.PhotoImage(image)
@@ -134,11 +134,13 @@ def game_loop(x: int, y: int, board: list, update_frame: callable, frames_to_upd
     ship_hit = check_ship_hit(board, player_idx, oponent_idx, x, y, update_console)
 
     if not ship_hit:
-        update_console("Fallaste tu último oportunidad")
         if check_winner(oponent):
+            update_console("Fallaste tu última oportunidad")
             update_console(f"¡{oponent["nickname"]} hundido toda la flota enemiga!")
             update_console("Fin de la partida")
             game_data["game_stage"] = GameStage.END
+        else:
+            update_console("¡Vaya! No has dado en el blanco")
     else:
         if check_winner(player) and check_winner(oponent):
             update_console("¡Es un empate! Fin de la partida")

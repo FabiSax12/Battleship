@@ -34,7 +34,7 @@ def generate_all_ship_images():
     for ship in ships.keys():
         for orientation in ships_Tkinter_images[ship].keys():
             for image_path in ships[ship]:
-                image = Image.open(f"src/images/{image_path}")
+                image = Image.open(f"images/{image_path}")
                 image = image.resize((button_width, button_width))
                 
                 if orientation == Orientation.LEFT:     rotated_image = image.rotate(180)

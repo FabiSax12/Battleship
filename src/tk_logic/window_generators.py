@@ -1,8 +1,9 @@
+import sys
 import tkinter                  as tk
 import tk_logic.custom_widgets  as custom
-from enums                      import Color, GameStage, Orientation, Ship
+from enums                      import Color, GameStage
 from game_logic.board           import clean_board
-from game_logic.ships           import print_all_ships, print_ship_image
+from game_logic.ships           import print_all_ships
 from game_data                  import game_data, find_saved_games, save_game_data
 from game_logic.config          import set_game_config
 
@@ -219,7 +220,7 @@ def create_game_screen() -> tk.Tk:
     """
     game_screen = tk.Tk()
     game_screen.title("Battleship")
-    game_screen.protocol("WM_DELETE_WINDOW", exit)
+    game_screen.protocol("WM_DELETE_WINDOW", sys.exit)
     game_screen.state("zoomed")
     custom.Button(game_screen, "Guardar", lambda: create_save_game_screen().mainloop()).place(x=0, y=0)
     
@@ -294,7 +295,7 @@ def create_new_game_screen() -> tk.Tk:
     )
     center_widget(accept_button, window_width, window_height, y=320, w_divider=2)
 
-    window_player_form.protocol("WM_DELETE_WINDOW", exit)
+    window_player_form.protocol("WM_DELETE_WINDOW", sys.exit)
     return window_player_form
 
 def create_welcome_screen(start_new_game, start_old_game) -> tk.Tk:
@@ -329,5 +330,5 @@ def create_welcome_screen(start_new_game, start_old_game) -> tk.Tk:
     create_game_btn = custom.Button(window_menu, "Nueva Partida", lambda: start_new_game(window_menu))
     center_widget(create_game_btn, window_width, window_height, y=260, w_divider=4, x_fraction=3)
 
-    window_menu.protocol("WM_DELETE_WINDOW", exit)
+    window_menu.protocol("WM_DELETE_WINDOW", sys.exit)
     return window_menu
