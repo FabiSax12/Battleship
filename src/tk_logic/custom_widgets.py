@@ -12,7 +12,7 @@ class Button(tk.Button):
         super().__init__(
             window, 
             text = text, 
-            font = ("Times New Roman", 17), 
+            font = ("Terminal", 17), 
             bg = Color.BLACK.value, 
             fg = Color.WHITE.value,
             command=on_click,
@@ -24,7 +24,7 @@ class Label(tk.Label):
         super().__init__(
             window,
             text = text,
-            font=("Times New Roman", font_size),
+            font=("Terminal", font_size),
             *args, **kargs
         )
 
@@ -32,7 +32,7 @@ class Entry(tk.Entry):
     def __init__(self, window: tk.Tk, font_size = 15, *args, **kargs):
         super().__init__(
             window,
-            font=("Times New Roman", font_size),
+            font=("Terminal", font_size),
             *args, **kargs
         )
 
@@ -61,7 +61,7 @@ class Scrollbar(tk.Scrollbar):
 class Listbox(tk.Listbox):
     def __init__(self, window: tk.Tk, *args, **kargs):
         super().__init__(window, *args, **kargs)
-        self.config(font=("Times New Roman", 15), relief=tk.FLAT, )
+        self.config(font=("Terminal", 15), relief=tk.FLAT, )
     
     def _action_and_destroy(self, action):
         selection = self.get(self.curselection()[0])

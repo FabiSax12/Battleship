@@ -46,7 +46,7 @@ def create_radio_buttons(window: tk.Tk, ships_complete_img: list, options: Enum,
             text=option.value.capitalize(),
             variable=selected_variable,
             value=value_function(option),
-            font=("Times New Roman", 12),
+            font=("Terminal", 12),
             foreground="black",
         )
         radio_button.pack(side=tk.TOP, anchor=tk.W)
@@ -186,7 +186,7 @@ def change_player_setup_turn(parent: tk.Widget, space_1: tk.Widget, space_3: tk.
             
             player_nickname = game_data["players"][0]["nickname"]
 
-            console = scrolledtext.ScrolledText(parent, wrap=tk.WORD, font=("Times New Roman", 14))
+            console = scrolledtext.ScrolledText(parent, wrap=tk.WORD, font=("Terminal", 14))
             console.pack()
             change_board_buttons_command(lambda board, x, y: game_loop(x, y, board, create_player_info_frame, (space_1, parent, space_3), lambda msj: update_console(console, msj)))
 
@@ -349,7 +349,7 @@ def start_old_game(file_name: str):
         clean_board(game_data["board_1"])
         clean_board(game_data["board_2"])
         toggle_board()
-        console = scrolledtext.ScrolledText(space_2, wrap=tk.WORD, font=("Times New Roman", 14))
+        console = scrolledtext.ScrolledText(space_2, wrap=tk.WORD, font=("Terminal", 14))
         console.pack()
         change_board_buttons_command(lambda board, x, y: game_loop(x, y, board, create_player_info_frame, (space_1, space_2, space_3), lambda msj: update_console(console, msj)))
         update_console(console, "¡La batalla debe continuar!")
