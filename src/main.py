@@ -57,7 +57,7 @@ def update_console(console: tk.Widget, message: str):
     console.see(tk.END)
     console.config(state=tk.DISABLED)
 
-def check_ship_hit(board: list, player_idx: int, oponent_idx: int, x: int, y: int, update_console: callable):
+def check_ship_hit(board: list, player_idx: int, oponent_idx: int, x: int, y: int, update_console):
     ship_hit = False
     ships_list = game_data["board_1_ships"] if board == game_data["board_1"] else game_data["board_2_ships"]
     player = game_data["players"][player_idx]
@@ -125,7 +125,7 @@ def check_end_game(board: list, update_console):
             player_nickname = game_data["players"][0]["nickname"]
             update_console(f"¡{player_nickname}, es tu turno!")
 
-def game_loop(x: int, y: int, board: list, update_frame: callable, frames_to_update: tuple[tk.Widget], update_console: callable):
+def game_loop(x: int, y: int, board: list, frames_to_update: tuple[tk.Widget], update_console):
     player_idx = game_data["turn"] - 1
     oponent_idx = 0 if player_idx == 1 else 1
     player = game_data["players"][player_idx]
@@ -239,7 +239,7 @@ def setup_game_screen(game_screen: tk.Tk, ships_complete_img: list, selected_shi
     setup_div = tk.Frame(game_screen)
 
     setup_div_label = custom.Label(setup_div, "Selecciona un barco y su orientación")
-    setup_div_label.pack()
+    setup_div_label.pack(expand=True, pady=10)
 
     ships_orientation_container = tk.Frame(setup_div)
     ships_selector_div = tk.Frame(ships_orientation_container)

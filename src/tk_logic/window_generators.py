@@ -206,8 +206,9 @@ def create_save_game_screen() -> tk.Tk:
     center_widget(save_game_button, window_width, window_height, y=window_height // 10 + 100)
 
     saved_games_list = list_of_saved_games(window_save_game, "Sobreescribir partida guardada", save_game_data)
-    saved_games_list.config(height=window_height // 2, width=window_width)
-    saved_games_list.place(x=0, y=window_height // 2)
+    # saved_games_list.config(height=window_height // 2, width=window_width)
+    # saved_games_list.place(x=0, y=window_height // 2)
+    saved_games_list.pack(side=tk.LEFT, fill=tk.X, expand=True, pady=(window_height // 2, 0))
 
     return window_save_game
 

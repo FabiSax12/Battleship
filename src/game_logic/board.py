@@ -134,7 +134,7 @@ def enable_board(board: list):
         for btn in row:
             btn.config(state="normal")
 
-def change_board_buttons_command(new_action: callable):
+def change_board_buttons_command(new_action):
     """
     Change the command of each button on the game board.
 
