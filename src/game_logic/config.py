@@ -48,11 +48,17 @@ def set_game_config(window, screen_width, screen_height, player_name1: tk.Entry,
         
     button_width = 0
     button_height = 0
+    max_rows = screen_height // 2 // 19
+    max_cols = (screen_width - 300) // 19
 
     try:
         rows = int(rows_box.get())
 
         button_height = screen_height // 2 // rows
+
+        if button_height < 19:
+            tk.messagebox.showinfo("Error", f"{rows} filas es excesivo, el máximo para la resolución de tu pantalla es {max_rows}.")
+            return
         
         if  rows < 10:
             tk.messagebox.showinfo("Error", "El número de filas debe ser mínimo 10.")
@@ -70,6 +76,11 @@ def set_game_config(window, screen_width, screen_height, player_name1: tk.Entry,
 
         button_width = (screen_width - 300) // (columns + 1)
         
+        print(button_width, max_cols)
+        if button_width < 19:
+            tk.messagebox.showinfo("Error", f"{columns} columnas es excesivo, el máximo para la resolución de tu pantalla es {max_cols - 1}.")
+            return
+
         if  columns < 20:
             tk.messagebox.showinfo("Error", "El número de columnas debe ser mínimo 20.")
             return
