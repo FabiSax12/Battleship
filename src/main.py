@@ -188,7 +188,7 @@ def change_player_setup_turn(parent: tk.Widget, space_1: tk.Widget, space_3: tk.
 
             console = scrolledtext.ScrolledText(parent, wrap=tk.WORD, font=("Terminal", 14))
             console.pack()
-            change_board_buttons_command(lambda board, x, y: game_loop(x, y, board, create_player_info_frame, (space_1, parent, space_3), lambda msj: update_console(console, msj)))
+            change_board_buttons_command(lambda board, x, y: game_loop(x, y, board, (space_1, parent, space_3), lambda msj: update_console(console, msj)))
 
             update_player_info_frame(space_1, 0)
             update_player_info_frame(space_3, 1)
@@ -351,7 +351,7 @@ def start_old_game(file_name: str):
         toggle_board()
         console = scrolledtext.ScrolledText(space_2, wrap=tk.WORD, font=("Terminal", 14))
         console.pack()
-        change_board_buttons_command(lambda board, x, y: game_loop(x, y, board, create_player_info_frame, (space_1, space_2, space_3), lambda msj: update_console(console, msj)))
+        change_board_buttons_command(lambda board, x, y: game_loop(x, y, board, (space_1, space_2, space_3), lambda msj: update_console(console, msj)))
         update_console(console, "¡La batalla debe continuar!")
         update_console(console, f"Turno de {game_data["players"][game_data["turn"] - 1]["nickname"]}")
 
